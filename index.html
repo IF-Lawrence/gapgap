@@ -464,79 +464,89 @@
         const countWords = e => { const t = e.match(/[a-zA-Z0-9]+|[\u4e00-\u9fa5]/g); return t ? t.length : 0 };
 
         function formatAndHighlight(e) {
-            let t = escapeHTML(e);
-            const cjk = "\\u4e00-\\u9fa5";
-            const alpha = "a-zA-Z";
-            const digit = "0-9";
-            // 常见单位（数字与单位之间无需增加空格）
-            const units = "[KkMmGgTtPp]?[Bb]|[KkMmGgTtPp][Bb]ps|fps|px|em|rem|pt|dpi|Hz|kHz|MHz|GHz|ms|[Kk]m|[Cc]m|mm|kg|[Mm]g|[Mm]b|[Gg]b|[Tt]b";
-            // 全角标点符号（全角标点与其他字符之间不加空格）
-            // 使用Unicode转义避免引号解析问题
-            const fullWidthPunct = '\uff0c\u3002\uff01\uff1f\uff1b\uff1a\u3001\u201c\u201d\u2018\u2019\uff08\uff09\u3010\u3011\u300a\u300b\u300c\u300d\u300e\u300f\u2014\u2026\u00b7\uff5e';
-            // 转义后用于正则表达式
-            const fullWidthPunctEscaped = fullWidthPunct.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const SPACE = "\uE000";
+            const WARN_START = "\uE001";
+            const WARN_END = "\uE002";
+            const cjk = "\\u3400-\\u9fff";
+            const latin = "A-Za-z";
+            const latinTokenTail = `${latin}0-9+#._\\-/²³`;
+            const protectedTokens = [];
 
-            // === 标点符号修正 ===
+            const protect = (text, pattern) => text.replace(pattern, match => {
+                const marker = `\uE100${String.fromCharCode(0xE200 + protectedTokens.length)}\uE101`;
+                protectedTokens.push(match);
+                return marker;
+            });
 
-            // 全角数字转半角 (１２３ → 123)
-            const fullWidthDigits = '\uff10\uff11\uff12\uff13\uff14\uff15\uff16\uff17\uff18\uff19';
-            for (let i = 0; i < 10; i++) {
-                t = t.replace(new RegExp(fullWidthDigits[i], 'g'), '<span class="auto-fixed">' + i + '</span>');
-            }
+            let t = e;
+            [
+                /\[[^\]\n]+\]\([^)]+\)/g,
+                /`[^`\n]+`/g,
+                /https?:\/\/[^\s\u3400-\u9fff，。！？；：、（）《》“”‘’]+/gi,
+                /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+                /\bv\d+(?:\.\d+)+(?:[-+][A-Z0-9.-]+)?\b/gi
+            ].forEach(pattern => {
+                t = protect(t, pattern);
+            });
 
-            // 中文语境中半角标点转全角
-            // 半角 → 全角 映射
+            t = t.replace(/[\uff10-\uff19]/g, char => String.fromCharCode(char.charCodeAt(0) - 0xfee0));
+
+            t = t.replace(/([！？!?]{2,}|[。，；：、]{2,})/g, match => {
+                const normalized = match.replace(/!/g, "\uff01").replace(/\?/g, "\uff1f");
+                return `${WARN_START}${normalized}${WARN_END}`;
+            });
+
             const punctMap = {
-                ',': '\uff0c',  // , → ，
-                '\\.': '\u3002', // . → 。(需要转义)
-                '!': '\uff01',  // ! → ！
-                '\\?': '\uff1f', // ? → ？(需要转义)
-                ';': '\uff1b',  // ; → ；
-                ':': '\uff1a',  // : → ：
-                '\\(': '\uff08', // ( → （
-                '\\)': '\uff09'  // ) → ）
+                ",": "\uff0c",
+                "!": "\uff01",
+                "?": "\uff1f",
+                ";": "\uff1b",
+                ":": "\uff1a",
+                "(": "\uff08",
+                ")": "\uff09"
             };
 
-            // 中文后跟半角标点 → 转全角
-            for (const [half, full] of Object.entries(punctMap)) {
-                t = t.replace(new RegExp(`([${cjk}])(${half})`, 'g'), '$1<span class="auto-fixed">' + full + '</span>');
+            Object.entries(punctMap).forEach(([half, full]) => {
+                const escaped = half.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                t = t.replace(new RegExp(`([${cjk}])(${escaped})`, "g"), `$1${full}`);
+                t = t.replace(new RegExp(`(${escaped})([${cjk}])`, "g"), `${full}$2`);
+            });
+            t = t.replace(new RegExp(`([${cjk}])\\.`, "g"), "$1\u3002");
+            t = t.replace(new RegExp(`(?<![${latin}0-9])\\.([${cjk}])`, "g"), "\u3002$1");
+
+            const addSpace = `$1${SPACE}$2`;
+            t = t.replace(new RegExp(`([${cjk}])([${latin}0-9])`, "g"), addSpace);
+            t = t.replace(new RegExp(`([${latin}0-9+#])([${cjk}])`, "g"), addSpace);
+            t = t.replace(new RegExp(`([${cjk}])([.][${latin}])`, "g"), addSpace);
+            t = t.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*)([${cjk}])`, "g"), addSpace);
+            t = t.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*\\.)([${cjk}])`, "g"), addSpace);
+
+            t = t.replace(new RegExp(`([${cjk}])([“‘「『])([${latin}0-9])`, "g"), `$1${SPACE}$2$3`);
+            t = t.replace(new RegExp(`([${latin}0-9])([”’」』])([${cjk}])`, "g"), `$1$2${SPACE}$3`);
+            t = t.replace(new RegExp(`([${cjk}])([—-])([${latin}0-9])`, "g"), `$1${SPACE}$2$3`);
+            t = t.replace(new RegExp(`([${latin}0-9])([—-])([${cjk}])`, "g"), `$1$2${SPACE}$3`);
+            t = t.replace(new RegExp(`([%‰℃℉°])([${cjk}])`, "g"), addSpace);
+            t = t.replace(new RegExp(`([${cjk}])(\uE100[\uE200-\uE2ff]\uE101)`, "g"), `$1${SPACE}$2`);
+            t = t.replace(new RegExp(`(\uE100[\uE200-\uE2ff]\uE101)([${cjk}])`, "g"), `$1${SPACE}$2`);
+
+            t = t.replace(/\uE100([\uE200-\uE2ff])\uE101/g, (_, code) => protectedTokens[code.charCodeAt(0) - 0xE200]);
+
+            let html = "";
+            const stack = [];
+            for (const char of t) {
+                if (char === SPACE) {
+                    html += '<span class="added-space">&nbsp;</span>';
+                } else if (char === WARN_START) {
+                    stack.push("warning");
+                    html += '<span class="warning">';
+                } else if (char === WARN_END) {
+                    if (stack.pop() === "warning") html += "</span>";
+                } else {
+                    html += escapeHTML(char);
+                }
             }
-            // 半角标点后跟中文 → 转全角
-            for (const [half, full] of Object.entries(punctMap)) {
-                t = t.replace(new RegExp(`(${half})([${cjk}])`, 'g'), '<span class="auto-fixed">' + full + '</span>$2');
-            }
 
-            // 检测重复标点符号并警告
-            t = t.replace(/([！？!?]{2,})/g, '<span class="warning">$1</span>');
-            t = t.replace(/([。，；：、]{2,})/g, '<span class="warning">$1</span>');
-
-            // === 空格规则 ===
-            const addSpace = '$1<span class="added-space">&nbsp;</span>$2';
-
-            // 中文 + 英文字母
-            t = t.replace(new RegExp(`([${cjk}])([${alpha}])`, "g"), addSpace);
-            // 英文字母 + 中文
-            t = t.replace(new RegExp(`([${alpha}])([${cjk}])`, "g"), addSpace);
-            // 中文 + 数字
-            t = t.replace(new RegExp(`([${cjk}])([${digit}])`, "g"), addSpace);
-            // 数字 + 中文（但不是数字+单位+中文的情况，单位后面的中文需要空格）
-            t = t.replace(new RegExp(`([${digit}])([${cjk}])`, "g"), addSpace);
-
-            // 移除数字与单位之间错误添加的空格
-            t = t.replace(new RegExp(`([${digit}])<span class="added-space">&nbsp;<\\/span>(${units})`, "gi"), '$1$2');
-            // 移除数字与百分号/度数符号之间错误添加的空格
-            t = t.replace(new RegExp(`([${digit}])<span class="added-space">&nbsp;<\\/span>([%°℃℉])`, "g"), '$1$2');
-
-            // 单位后跟中文需要加空格（如 10GB的 → 10GB 的）
-            t = t.replace(new RegExp(`(${units})([${cjk}])`, "gi"), '$1<span class="added-space">&nbsp;</span>$2');
-            // 百分号/度数符号后跟中文需要加空格（如 15%的 → 15% 的）
-            t = t.replace(new RegExp(`([%°℃℉])([${cjk}])`, "g"), '$1<span class="added-space">&nbsp;</span>$2');
-
-            // 移除全角标点前后错误添加的空格
-            t = t.replace(new RegExp(`<span class="added-space">&nbsp;<\\/span>([${fullWidthPunctEscaped}])`, "g"), '$1');
-            t = t.replace(new RegExp(`([${fullWidthPunctEscaped}])<span class="added-space">&nbsp;<\\/span>`, "g"), '$1');
-
-            return t.replace(/\n/g, "<br>");
+            return html.replace(/\n/g, "<br>");
         } function updateStatus(e, t) { const o = e.value || e.innerText; t.textContent = `${o.length} 字符 / ${countWords(o)} 字` } function handleInput() { const e = inputArea.value; outputArea.innerHTML = formatAndHighlight(e), updateStatus(inputArea, inputStatus), updateStatus(outputArea, outputStatus) }
         function addToHistory(e) {
             const t = (new Date).toISOString();
