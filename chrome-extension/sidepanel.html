@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GapGap 侧边栏</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <main class="sidepanel-shell">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <div>
+          <h1>GapGap</h1>
+          <p>中英文混排校对</p>
+        </div>
+      </div>
+      <button id="historyButton" class="icon-button" type="button" aria-label="历史记录" title="历史记录">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+          <path d="M3 4v6h6"></path>
+          <path d="M12 7v6l4 2"></path>
+        </svg>
+      </button>
+    </header>
+
+    <section class="workspace" aria-label="校对工作台">
+      <section class="composer card-pane" aria-label="校对输入">
+        <div class="pane-bar">
+          <span class="pill">原文</span>
+          <span id="inputCount">0 字符 / 0 字</span>
+        </div>
+        <textarea id="inputText" spellcheck="false" placeholder="输入文本，结果会自动更新"></textarea>
+      </section>
+
+      <section class="result-panel card-pane" aria-label="校对结果">
+        <div class="pane-bar">
+          <span id="resultStatus">暂无结果</span>
+          <span id="resultCount">0 字符 / 0 字</span>
+        </div>
+        <div id="result" class="result" contenteditable="true" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <footer class="command-bar">
+      <label class="switch">
+        <input id="autoCopy" type="checkbox">
+        <span></span>
+        <strong>自动复制</strong>
+      </label>
+      <button id="copyButton" class="copy-button" type="button" aria-label="复制校对结果">
+        <span>复制</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 7h10v14H8z"></path>
+          <path d="M5 3h10v4H8v10H5z"></path>
+        </svg>
+      </button>
+    </footer>
+
+    <section id="historyOverlay" class="history-overlay" aria-label="历史记录">
+      <div class="history-card">
+        <header class="history-header">
+          <div>
+            <h2>历史记录</h2>
+            <p>点击卡片载入内容</p>
+          </div>
+          <div class="history-actions">
+            <button id="clearHistory" class="icon-button" type="button" aria-label="清空历史" title="清空历史">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6h18"></path>
+                <path d="M8 6V4h8v2"></path>
+                <path d="m19 6-1 14H6L5 6"></path>
+              </svg>
+            </button>
+            <button id="closeHistoryButton" class="icon-button" type="button" aria-label="关闭历史" title="关闭历史">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </header>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="core.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

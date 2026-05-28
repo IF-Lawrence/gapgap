@@ -4,14 +4,13 @@
   "description": "中英文混排校对：划词后快速检测、复制，并保存历史记录。",
   "version": "0.1.0",
   "action": {
-    "default_title": "GapGap",
-    "default_popup": "popup.html"
+    "default_title": "GapGap"
   },
   "background": {
     "service_worker": "background.js"
   },
   "side_panel": {
-    "default_path": "editor.html"
+    "default_path": "sidepanel.html"
   },
   "permissions": [
     "activeTab",

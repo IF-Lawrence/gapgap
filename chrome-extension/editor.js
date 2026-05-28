@@ -112,7 +112,7 @@
       window.GapGapCore.HISTORY_KEY
     ]);
     const settings = {
-      autoCopy: true,
+      autoCopy: false,
       ...(data[window.GapGapCore.SETTINGS_KEY] || {})
     };
     autoCopy.checked = settings.autoCopy;

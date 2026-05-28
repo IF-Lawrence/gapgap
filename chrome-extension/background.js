@@ -1,5 +1,5 @@
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {});
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -7,19 +7,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   const tabId = sender.tab && sender.tab.id;
   const windowId = sender.tab && sender.tab.windowId;
+  const current = message.current;
 
   (async () => {
     if (typeof tabId === "number") {
+      await chrome.sidePanel.open({ tabId });
       await chrome.sidePanel.setOptions({
         tabId,
-        path: "editor.html",
+        path: "sidepanel.html",
         enabled: true
       });
-      await chrome.sidePanel.open({ tabId });
     } else if (typeof windowId === "number") {
       await chrome.sidePanel.open({ windowId });
     } else {
       throw new Error("No tab or window context for side panel.");
+    }
+
+    if (current) {
+      await chrome.storage.local.set({
+        gapgapCurrent: {
+          input: current.input || "",
+          output: current.output || "",
+          url: current.url || "",
+          title: current.title || "",
+          timestamp: current.timestamp || new Date().toISOString()
+        }
+      });
     }
   })()
     .then(() => sendResponse({ ok: true }))

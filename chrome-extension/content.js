@@ -10,7 +10,7 @@
   const bubble = document.createElement("button");
   bubble.className = "gapgap-bubble";
   bubble.type = "button";
-  bubble.textContent = "GapGap 检测";
+  bubble.textContent = "G";
 
   const panel = document.createElement("section");
   panel.className = "gapgap-result-panel";
@@ -18,17 +18,14 @@
     <div class="gapgap-result-header">
       <div class="gapgap-brand">
         <span class="gapgap-brand-dot"></span>
-        <span>GapGap</span>
+        <span>
+          <strong>GapGap</strong>
+          <small>校对结果</small>
+        </span>
       </div>
       <div class="gapgap-header-actions">
-        <button class="gapgap-icon-button" type="button" data-action="copy" aria-label="复制结果" title="复制结果">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h10v14H8z"></path><path d="M5 3h10v4H8v10H5z"></path></svg>
-        </button>
         <button class="gapgap-icon-button" type="button" data-action="sidePanel" aria-label="打开侧边栏" title="打开侧边栏">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M21 3 10 14"></path><path d="M11 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"></path></svg>
-        </button>
-        <button class="gapgap-icon-button" type="button" data-action="history" aria-label="历史记录" title="历史记录">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path><path d="M12 7v6l4 2"></path></svg>
         </button>
         <button class="gapgap-icon-button gapgap-result-close" type="button" aria-label="关闭" title="关闭">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -38,17 +35,19 @@
     <div class="gapgap-result-card">
       <div class="gapgap-result-body"></div>
     </div>
-    <div class="gapgap-result-status">等待检测</div>
-    <aside class="gapgap-history-popover" aria-label="历史记录">
-      <div class="gapgap-history-list"></div>
-    </aside>
+    <div class="gapgap-result-footer">
+      <div class="gapgap-result-status">等待检测</div>
+      <button class="gapgap-copy-button" type="button" data-action="copy">
+        <span>复制结果</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h10v14H8z"></path><path d="M5 3h10v4H8v10H5z"></path></svg>
+      </button>
+    </div>
   `;
 
   document.documentElement.append(bubble, panel);
 
   const resultBody = panel.querySelector(".gapgap-result-body");
   const resultStatus = panel.querySelector(".gapgap-result-status");
-  const historyList = panel.querySelector(".gapgap-history-list");
   const panelHeader = panel.querySelector(".gapgap-result-header");
 
   function getSelectionText() {
@@ -71,8 +70,8 @@
   }
 
   function showBubble(rect) {
-    const top = Math.max(8, rect.top - 44);
-    const left = Math.min(window.innerWidth - 130, Math.max(8, rect.left + rect.width / 2 - 56));
+    const top = Math.max(8, rect.top - 38);
+    const left = Math.min(window.innerWidth - 42, Math.max(8, rect.left + rect.width / 2 - 15));
     bubble.style.top = `${top}px`;
     bubble.style.left = `${left}px`;
     bubble.style.display = "inline-flex";
@@ -105,55 +104,38 @@
     });
   }
 
-  function formatDate(value) {
-    return new Intl.DateTimeFormat("zh-CN", {
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit"
-    }).format(new Date(value));
-  }
-
-  function renderHistory(history) {
-    historyList.innerHTML = "";
-    if (!history.length) {
-      historyList.innerHTML = '<div class="gapgap-history-empty">暂无历史记录</div>';
-      return;
-    }
-
-    history.forEach((item) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "gapgap-history-item";
-      button.dataset.input = item.input;
-      button.innerHTML = `
-        <span class="gapgap-history-text"></span>
-        <span class="gapgap-history-date">${formatDate(item.timestamp)}</span>
-      `;
-      button.querySelector(".gapgap-history-text").textContent = item.output;
-      historyList.appendChild(button);
-    });
-  }
-
-  async function refreshHistory() {
-    const data = await new Promise((resolve) => {
-      chrome.storage.local.get([window.GapGapCore.HISTORY_KEY], resolve);
-    });
-    renderHistory(data[window.GapGapCore.HISTORY_KEY] || []);
-  }
-
   async function showPanel(input, result, copied) {
     latestInput = input;
     latestResult = result;
     resultBody.innerHTML = result.html || "<span>无可处理内容</span>";
-    resultStatus.textContent = copied ? "已处理并复制到剪切板" : "已处理";
+    resultStatus.textContent = copied ? "已复制到剪切板" : "已自动校对";
     panel.style.display = "flex";
     await loadPanelPosition();
-    await refreshHistory();
   }
 
   async function copyText(text) {
     await navigator.clipboard.writeText(text);
+  }
+
+  function currentEntry(input, result) {
+    return {
+      input,
+      output: result ? result.text : "",
+      url: location.href,
+      title: document.title,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  function openNativeSidePanel(entry, onFailure) {
+    chrome.runtime.sendMessage({
+      type: "GAPGAP_OPEN_SIDE_PANEL",
+      current: entry
+    }, (response) => {
+      if (chrome.runtime.lastError || !response || !response.ok) {
+        if (onFailure) onFailure(chrome.runtime.lastError ? chrome.runtime.lastError.message : response && response.error);
+      }
+    });
   }
 
   async function runCheck() {
@@ -200,7 +182,6 @@
     if (event.key === "Escape") {
       hideBubble();
       panel.style.display = "none";
-      panel.classList.remove("gapgap-history-open");
     }
   });
 
@@ -212,7 +193,6 @@
 
   panel.querySelector(".gapgap-result-close").addEventListener("click", () => {
     panel.style.display = "none";
-    panel.classList.remove("gapgap-history-open");
   });
 
   panelHeader.addEventListener("pointerdown", (event) => {
@@ -256,35 +236,12 @@
     const action = event.target && event.target.dataset ? event.target.dataset.action : "";
     if (action === "copy" && latestResult) {
       await copyText(latestResult.text);
-      resultStatus.textContent = "已复制到剪切板";
-    }
-    if (action === "history") {
-      await refreshHistory();
-      panel.classList.toggle("gapgap-history-open");
+      resultStatus.textContent = "已复制";
     }
     if (action === "sidePanel") {
-      if (latestInput) {
-        await window.GapGapCore.saveCurrent({
-          input: latestInput,
-          output: latestResult ? latestResult.text : "",
-          url: location.href,
-          title: document.title,
-          timestamp: new Date().toISOString()
-        });
-      }
-      chrome.runtime.sendMessage({ type: "GAPGAP_OPEN_SIDE_PANEL" }, (response) => {
-        if (!response || !response.ok) {
-          resultStatus.textContent = "无法打开侧边栏，请在扩展详情中确认侧边栏权限";
-        }
+      openNativeSidePanel(currentEntry(latestInput, latestResult), (error) => {
+        resultStatus.textContent = error ? `无法打开 Chrome 侧边栏：${error}` : "无法打开 Chrome 侧边栏";
       });
     }
-  });
-
-  historyList.addEventListener("click", (event) => {
-    const item = event.target.closest(".gapgap-history-item");
-    if (!item) return;
-    const input = item.dataset.input || "";
-    const result = window.GapGapCore.formatAndHighlight(input);
-    showPanel(input, result, false);
   });
 })();

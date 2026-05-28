@@ -156,10 +156,6 @@
       <input data-var="--gapgap-panel-height" data-unit="px" data-value-target="height" type="range" min="300" max="620" value="420">
     </label>
     <label class="dev-control">
-      <span class="dev-control-row"><span>历史卡片宽度</span><span data-value="history">128px</span></span>
-      <input data-var="--gapgap-history-width" data-unit="px" data-value-target="history" type="range" min="96" max="220" value="128">
-    </label>
-    <label class="dev-control">
       <span class="dev-control-row"><span>右侧距离</span><span data-value="right">16px</span></span>
       <input data-var="--gapgap-panel-right" data-unit="px" data-value-target="right" type="range" min="8" max="220" value="16">
     </label>
@@ -169,7 +165,6 @@
     </label>
     <div class="dev-buttons">
       <button id="toggleBubble" type="button" class="secondary">切换气泡</button>
-      <button id="toggleHistory" type="button" class="secondary">切换历史</button>
       <button id="reset" type="button">重置</button>
     </div>
     <div id="cssOutput" class="dev-output"></div>
@@ -185,23 +180,20 @@
     </article>
   </main>
 
-  <button class="gapgap-bubble" type="button">GapGap 检测</button>
+  <button class="gapgap-bubble" type="button">G</button>
 
-  <section class="gapgap-result-panel gapgap-history-open">
+  <section class="gapgap-result-panel">
     <div class="gapgap-result-header">
       <div class="gapgap-brand">
         <span class="gapgap-brand-dot"></span>
-        <span>GapGap</span>
+        <span>
+          <strong>GapGap</strong>
+          <small>校对结果</small>
+        </span>
       </div>
       <div class="gapgap-header-actions">
-        <button class="gapgap-icon-button" type="button" aria-label="复制结果" title="复制结果">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h10v14H8z"></path><path d="M5 3h10v4H8v10H5z"></path></svg>
-        </button>
-        <button class="gapgap-icon-button" id="previewEditorButton" type="button" aria-label="整页编辑" title="整页编辑">
+        <button class="gapgap-icon-button" id="previewSidePanelButton" type="button" aria-label="打开侧边栏" title="打开侧边栏">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M21 3 10 14"></path><path d="M11 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"></path></svg>
-        </button>
-        <button class="gapgap-icon-button" id="previewHistoryButton" type="button" aria-label="历史记录" title="历史记录">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path><path d="M12 7v6l4 2"></path></svg>
         </button>
         <button class="gapgap-icon-button gapgap-result-close" type="button" aria-label="关闭" title="关闭">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -211,30 +203,19 @@
     <div class="gapgap-result-card">
       <div class="gapgap-result-body">在<span class="gapgap-added-space">&nbsp;</span>LeanCloud<span class="gapgap-added-space">&nbsp;</span>上，数据存储是围绕<span class="gapgap-added-space">&nbsp;</span>AVObject<span class="gapgap-added-space">&nbsp;</span>进行的。今天出去买菜花了<span class="gapgap-added-space">&nbsp;</span>5000<span class="gapgap-added-space">&nbsp;</span>元。你好，世界！太棒了<span class="gapgap-warning">！！！</span></div>
     </div>
-    <div class="gapgap-result-status">已处理并复制到剪切板</div>
-    <aside class="gapgap-history-popover" aria-label="历史记录">
-      <div class="gapgap-history-list">
-        <button class="gapgap-history-item" type="button">
-          <span class="gapgap-history-text">在 LeanCloud 上，数据存储是围绕 AVObject 进行的。</span>
-          <span class="gapgap-history-date">05/28 12:30</span>
-        </button>
-        <button class="gapgap-history-item" type="button">
-          <span class="gapgap-history-text">新 MacBook Pro 有 15% 的 CPU 性能提升。</span>
-          <span class="gapgap-history-date">05/28 12:18</span>
-        </button>
-        <button class="gapgap-history-item" type="button">
-          <span class="gapgap-history-text">你好，世界！太棒了！！！</span>
-          <span class="gapgap-history-date">05/28 12:03</span>
-        </button>
-      </div>
-    </aside>
+    <div class="gapgap-result-footer">
+      <div class="gapgap-result-status">已自动校对</div>
+      <button class="gapgap-copy-button" type="button">
+        <span>复制结果</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h10v14H8z"></path><path d="M5 3h10v4H8v10H5z"></path></svg>
+      </button>
+    </div>
   </section>
 
   <script>
     const defaults = {
       "--gapgap-panel-width": 560,
       "--gapgap-panel-height": 420,
-      "--gapgap-history-width": 128,
       "--gapgap-panel-right": 16,
       "--gapgap-panel-bottom": 16
     };
@@ -264,20 +245,8 @@
       bubble.style.display = bubble.style.display === "none" ? "inline-flex" : "none";
     });
 
-    function toggleHistory() {
-      document.querySelector(".gapgap-result-panel").classList.toggle("gapgap-history-open");
-    }
-
-    document.getElementById("toggleHistory").addEventListener("click", toggleHistory);
-    document.getElementById("previewHistoryButton").addEventListener("click", toggleHistory);
-    document.getElementById("previewEditorButton").addEventListener("click", () => {
-      window.location.href = "editor.html";
-    });
-
-    document.querySelectorAll(".gapgap-history-item").forEach((item) => {
-      item.addEventListener("click", () => {
-        document.querySelector(".gapgap-result-body").textContent = item.querySelector(".gapgap-history-text").textContent;
-      });
+    document.getElementById("previewSidePanelButton").addEventListener("click", () => {
+      window.location.href = "sidepanel.html";
     });
 
     document.getElementById("reset").addEventListener("click", () => {

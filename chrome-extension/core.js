@@ -121,7 +121,7 @@
   async function getSettings() {
     const result = await getStorage([SETTINGS_KEY]);
     return {
-      autoCopy: true,
+      autoCopy: false,
       ...(result[SETTINGS_KEY] || {})
     };
   }

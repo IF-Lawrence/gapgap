@@ -95,7 +95,7 @@
       window.GapGapCore.HISTORY_KEY
     ]);
     const settings = {
-      autoCopy: true,
+      autoCopy: false,
       ...(data[window.GapGapCore.SETTINGS_KEY] || {})
     };
     autoCopy.checked = settings.autoCopy;
@@ -127,20 +127,21 @@
   });
 
   openSidePanelButton.addEventListener("click", async () => {
-    await window.GapGapCore.saveCurrent({
+    const current = {
       input: inputText.value,
       output: currentOutput,
       timestamp: new Date().toISOString()
-    });
+    };
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     const tab = tabs[0];
     if (tab && typeof tab.id === "number") {
+      await chrome.sidePanel.open({ tabId: tab.id });
       await chrome.sidePanel.setOptions({
         tabId: tab.id,
-        path: "editor.html",
+        path: "sidepanel.html",
         enabled: true
       });
-      await chrome.sidePanel.open({ tabId: tab.id });
+      await window.GapGapCore.saveCurrent(current);
     }
   });
 
