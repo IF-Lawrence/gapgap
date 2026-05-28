@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GapGap 校对工作台</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <main class="workbench">
+    <section class="pane">
+      <header class="pane-header">原文</header>
+      <div class="editor-container">
+        <textarea id="input-area" class="editor-content" placeholder="输入或粘贴您的原始文本..."></textarea>
+      </div>
+      <footer class="pane-footer">
+        <div class="status-bar" id="input-status">0 字符 / 0 字</div>
+      </footer>
+    </section>
+
+    <section class="pane">
+      <header class="pane-header">校对</header>
+      <div class="editor-container">
+        <div id="output-area" class="editor-content" contenteditable="true"></div>
+      </div>
+      <footer class="pane-footer">
+        <div class="status-bar" id="output-status">0 字符 / 0 字</div>
+        <div class="footer-controls">
+          <label class="auto-copy">
+            <input id="autoCopy" type="checkbox">
+            <span>自动复制</span>
+          </label>
+          <button class="m3-button m3-button--tonal" id="toggleHighlightBtn" type="button">隐藏高亮</button>
+          <button class="m3-button m3-button--tonal" id="openHistoryBtn" type="button">历史</button>
+          <button class="m3-button m3-button--filled" id="copyButton" type="button">复制</button>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <div id="history-modal" class="history-modal-overlay">
+    <section class="history-panel">
+      <header class="history-header">
+        <h2>历史记录</h2>
+        <button id="close-history-btn" class="close-btn" type="button" aria-label="关闭">&times;</button>
+      </header>
+      <div id="history-items-container" class="history-items-container"></div>
+    </section>
+  </div>
+
+  <script src="core.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GapGap</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="app">
+    <section class="current">
+      <header class="topbar">
+        <div>
+          <h1>GapGap</h1>
+          <p>中英文混排校对</p>
+        </div>
+        <label class="switch">
+          <input id="autoCopy" type="checkbox">
+          <span></span>
+          <strong>自动复制</strong>
+        </label>
+      </header>
+
+      <label class="field-label" for="inputText">当前处理内容</label>
+      <textarea id="inputText" spellcheck="false" placeholder="粘贴文本，或在网页中划词后点击气泡检测"></textarea>
+
+      <div class="actions">
+        <button id="checkButton" type="button">检测</button>
+        <button id="copyButton" type="button" class="secondary">复制结果</button>
+        <button id="openSidePanelButton" type="button" class="secondary">侧边栏</button>
+      </div>
+
+      <div class="result-card">
+        <div class="result-meta">
+          <span id="resultStatus">暂无结果</span>
+          <span id="resultCount">0 字符 / 0 字</span>
+        </div>
+        <div id="result" class="result" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <aside class="history">
+      <div class="history-header">
+        <h2>历史记录</h2>
+        <button id="clearHistory" type="button">清空</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </aside>
+  </main>
+  <script src="core.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

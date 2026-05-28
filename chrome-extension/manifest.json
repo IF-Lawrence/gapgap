@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "GapGap",
+  "description": "中英文混排校对：划词后快速检测、复制，并保存历史记录。",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "GapGap",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "editor.html"
+  },
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "sidePanel",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "core.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
