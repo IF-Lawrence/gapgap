@@ -74,7 +74,7 @@
     const settings = await window.GapGapCore.getSettings();
     let status = "已处理";
 
-    if (settings.autoCopy) {
+    if (settings.sidePanelAutoCopy) {
       await copyOutput(formatted.text);
       status = "已处理并复制";
     }
@@ -95,10 +95,11 @@
       window.GapGapCore.HISTORY_KEY
     ]);
     const settings = {
-      autoCopy: false,
+      popupAutoCopy: false,
+      sidePanelAutoCopy: false,
       ...(data[window.GapGapCore.SETTINGS_KEY] || {})
     };
-    autoCopy.checked = settings.autoCopy;
+    autoCopy.checked = settings.sidePanelAutoCopy;
     history = data[window.GapGapCore.HISTORY_KEY] || [];
 
     const current = data[window.GapGapCore.CURRENT_KEY];
@@ -109,7 +110,8 @@
   }
 
   autoCopy.addEventListener("change", async () => {
-    await window.GapGapCore.saveSettings({ autoCopy: autoCopy.checked });
+    const settings = await window.GapGapCore.getSettings();
+    await window.GapGapCore.saveSettings({ ...settings, sidePanelAutoCopy: autoCopy.checked });
   });
 
   checkButton.addEventListener("click", runCheck);

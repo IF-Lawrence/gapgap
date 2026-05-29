@@ -6,16 +6,20 @@
   const resultCount = document.getElementById("resultCount");
   const copyButton = document.getElementById("copyButton");
   const autoCopy = document.getElementById("autoCopy");
+  const bubbleEnabled = document.getElementById("bubbleEnabled");
   const historyButton = document.getElementById("historyButton");
   const historyOverlay = document.getElementById("historyOverlay");
   const historyList = document.getElementById("historyList");
+  const historySearch = document.getElementById("historySearch");
+  const historyCount = document.getElementById("historyCount");
   const clearHistory = document.getElementById("clearHistory");
   const closeHistoryButton = document.getElementById("closeHistoryButton");
   let currentOutput = "";
   let history = [];
+  let historyQuery = "";
   let saveTimer = 0;
   let historyTimer = 0;
-  let settings = { autoCopy: false };
+  let settings = { bubbleEnabled: true, popupAutoCopy: false, sidePanelAutoCopy: false };
 
   function getStorage(keys) {
     return new Promise((resolve) => chrome.storage.local.get(keys, resolve));
@@ -54,29 +58,68 @@
     }
   }
 
+  function normalizedHistoryQuery() {
+    return historyQuery.trim().toLowerCase();
+  }
+
+  function isHistoryMatch(item, query) {
+    if (!query) return true;
+    return [
+      item.input,
+      item.output,
+      item.title,
+      item.url,
+      sourceLabel(item)
+    ].some((value) => (value || "").toLowerCase().includes(query));
+  }
+
   function renderHistory() {
     historyList.innerHTML = "";
     if (!history.length) {
+      historyCount.textContent = "0 条";
       historyList.innerHTML = '<div class="history-empty">暂无历史记录</div>';
       return;
     }
 
-    history.forEach((item) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "history-item";
-      button.dataset.id = item.id;
-      button.innerHTML = `
-        <span class="history-text"></span>
-        <span class="history-meta">
-          <span class="history-source"></span>
-          <span>${formatDate(item.timestamp)}</span>
-        </span>
+    const query = normalizedHistoryQuery();
+    const visibleHistory = history.filter((item) => isHistoryMatch(item, query));
+    historyCount.textContent = query
+      ? `${visibleHistory.length} / ${history.length} 条`
+      : `${history.length} 条`;
+
+    if (!visibleHistory.length) {
+      historyList.innerHTML = '<div class="history-empty">没有匹配的历史记录</div>';
+      return;
+    }
+
+    visibleHistory.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "history-item";
+      row.dataset.id = item.id;
+      row.innerHTML = `
+        <button class="history-load" type="button" data-action="load">
+          <span class="history-text"></span>
+          <span class="history-meta">
+            <span class="history-source"></span>
+            <span>${formatDate(item.timestamp)}</span>
+          </span>
+        </button>
+        <button class="history-delete" type="button" data-action="delete" aria-label="删除这条历史" title="删除这条历史">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12Zm2-10h8v10H8V9Zm7.5-5-1-1h-5l-1 1H5v2h14V4h-3.5Z"></path>
+          </svg>
+        </button>
       `;
-      button.querySelector(".history-text").textContent = item.output;
-      button.querySelector(".history-source").textContent = sourceLabel(item);
-      historyList.appendChild(button);
+      row.querySelector(".history-text").textContent = item.output;
+      row.querySelector(".history-source").textContent = sourceLabel(item);
+      historyList.appendChild(row);
     });
+  }
+
+  async function persistHistory(nextHistory) {
+    history = nextHistory;
+    await chrome.storage.local.set({ [window.GapGapCore.HISTORY_KEY]: history });
+    renderHistory();
   }
 
   function renderResult(input, formatted, status, syncInput) {
@@ -145,7 +188,7 @@
 
     const formatted = renderFromInput(options.status || "已自动校对");
 
-    if (options.copy || settings.autoCopy) {
+    if (options.copy || settings.sidePanelAutoCopy) {
       try {
         await copyOutput(formatted.text);
         resultStatus.textContent = "已自动校对并复制";
@@ -165,12 +208,15 @@
       window.GapGapCore.HISTORY_KEY
     ]);
     settings = {
-      autoCopy: false,
+      bubbleEnabled: true,
+      popupAutoCopy: false,
+      sidePanelAutoCopy: false,
       ...(data[window.GapGapCore.SETTINGS_KEY] || {})
     };
     const current = data[window.GapGapCore.CURRENT_KEY];
 
-    autoCopy.checked = settings.autoCopy;
+    autoCopy.checked = settings.sidePanelAutoCopy;
+    bubbleEnabled.checked = settings.bubbleEnabled !== false;
     history = data[window.GapGapCore.HISTORY_KEY] || [];
 
     if (current && current.input) {
@@ -198,7 +244,12 @@
   });
 
   autoCopy.addEventListener("change", async () => {
-    settings = { ...settings, autoCopy: autoCopy.checked };
+    settings = { ...settings, sidePanelAutoCopy: autoCopy.checked };
+    await window.GapGapCore.saveSettings(settings);
+  });
+
+  bubbleEnabled.addEventListener("change", async () => {
+    settings = { ...settings, bubbleEnabled: bubbleEnabled.checked };
     await window.GapGapCore.saveSettings(settings);
   });
 
@@ -222,20 +273,36 @@
     if (!item) return;
     const entry = history.find((candidate) => candidate.id === item.dataset.id);
     if (!entry) return;
+
+    const action = event.target.closest("[data-action]");
+    if (action && action.dataset.action === "delete") {
+      persistHistory(history.filter((candidate) => candidate.id !== entry.id));
+      return;
+    }
+
     syncInputAndRender(entry.input, "已载入历史记录");
     scheduleSaveCurrent();
     historyOverlay.classList.remove("visible");
   });
 
+  historySearch.addEventListener("input", () => {
+    historyQuery = historySearch.value;
+    renderHistory();
+  });
+
   clearHistory.addEventListener("click", async () => {
+    if (!history.length) return;
+    if (!window.confirm("确定清空全部历史记录？")) return;
     await window.GapGapCore.clearHistory();
     history = [];
     renderHistory();
   });
 
   historyButton.addEventListener("click", () => {
+    historyQuery = historySearch.value;
     renderHistory();
     historyOverlay.classList.add("visible");
+    historySearch.focus();
   });
 
   closeHistoryButton.addEventListener("click", () => {
@@ -260,10 +327,13 @@
     }
     if (changes[window.GapGapCore.SETTINGS_KEY]) {
       settings = {
-        autoCopy: false,
+        bubbleEnabled: true,
+        popupAutoCopy: false,
+        sidePanelAutoCopy: false,
         ...(changes[window.GapGapCore.SETTINGS_KEY].newValue || {})
       };
-      autoCopy.checked = settings.autoCopy !== false;
+      autoCopy.checked = settings.sidePanelAutoCopy === true;
+      bubbleEnabled.checked = settings.bubbleEnabled !== false;
     }
   });
 

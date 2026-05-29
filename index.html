@@ -515,6 +515,14 @@
             t = t.replace(new RegExp(`(?<![${latin}0-9])\\.([${cjk}])`, "g"), "\u3002$1");
 
             const addSpace = `$1${SPACE}$2`;
+            const plusLeftOperand = `[${cjk}0-9]|[${latin}0-9][${latin}0-9._\\-/²³]*`;
+            const plusRightOperand = `[${cjk}${latin}0-9]`;
+            t = t.replace(new RegExp(`(${plusLeftOperand})([ \\t]*)\\+([ \\t]*)(${plusRightOperand})`, "g"), (match, left, leftSpace, rightSpace, right) => {
+                if (/^[A-Za-z]$/.test(left) && new RegExp(`[${cjk}]`).test(right)) return match;
+                const beforePlus = leftSpace ? " " : SPACE;
+                const afterPlus = rightSpace ? " " : SPACE;
+                return `${left}${beforePlus}+${afterPlus}${right}`;
+            });
             t = t.replace(new RegExp(`([${cjk}])([${latin}0-9])`, "g"), addSpace);
             t = t.replace(new RegExp(`([${latin}0-9+#])([${cjk}])`, "g"), addSpace);
             t = t.replace(new RegExp(`([${cjk}])([.][${latin}])`, "g"), addSpace);
@@ -615,12 +623,15 @@
 4. 百分号/度数后跟中文需要空格
    示例：新MacBook Pro有15%的CPU性能提升。
 
-5. 全角标点与其他字符之间不加空格
+5. 加号作为连接符/运算符时两侧需要空格
+   示例：USB+Fast模式，1+1=2。
+
+6. 全角标点与其他字符之间不加空格
    示例：刚刚买了一部iPhone，好开心！
 
 二、标点符号规则：
 
-6. 中文语境使用全角标点（自动修正）
+7. 中文语境使用全角标点（自动修正）
    错误示例：你好,世界!
    正确示例：你好，世界！
 

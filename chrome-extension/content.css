@@ -25,6 +25,18 @@
   backdrop-filter: blur(18px);
 }
 
+.gapgap-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.gapgap-bubble .gapgap-logo {
+  width: 16px;
+  height: 16px;
+}
+
 .gapgap-bubble:hover {
   background: #ffffff;
   transform: translateY(-1px);
@@ -72,13 +84,7 @@
 
 .gapgap-brand {
   min-width: 0;
-  gap: 10px;
-}
-
-.gapgap-brand > span:last-child {
-  display: grid;
-  min-width: 0;
-  gap: 1px;
+  gap: 8px;
 }
 
 .gapgap-brand strong {
@@ -92,51 +98,31 @@
   line-height: 18px;
 }
 
-.gapgap-brand small {
-  display: block;
-  overflow: hidden;
-  color: #777277;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  line-height: 16px;
-}
-
 .gapgap-brand-dot {
   display: block;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   flex: 0 0 auto;
-  border-radius: 8px;
-  background: #f3e8ff;
-  color: #7c2ebf;
-}
-
-.gapgap-brand-dot::before {
-  content: "G";
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-  font-size: 15px;
-  font-weight: 800;
 }
 
 .gapgap-header-actions {
   flex: 0 0 auto;
-  gap: 4px;
+  gap: 8px;
 }
 
 .gapgap-icon-button {
   all: unset;
   display: inline-flex;
-  width: 30px;
   height: 30px;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   color: #171717;
   cursor: pointer;
+}
+
+.gapgap-icon-button {
+  width: 30px;
 }
 
 .gapgap-icon-button:hover {
@@ -147,11 +133,8 @@
   display: block;
   width: 18px;
   height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: currentColor;
+  stroke: none;
   pointer-events: none;
 }
 
@@ -197,7 +180,7 @@
 
 .gapgap-result-footer {
   display: flex;
-  min-height: 52px;
+  min-height: 54px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
@@ -205,45 +188,113 @@
   padding: 10px 14px;
 }
 
-.gapgap-result-status {
-  overflow: hidden;
-  color: #777277;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  line-height: 18px;
+.gapgap-footer-left {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
 }
 
-.gapgap-copy-button {
+.gapgap-result-status {
+  color: #777277;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.gapgap-auto-copy {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  color: #777277;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+
+.gapgap-auto-copy input {
+  position: absolute;
+  opacity: 0;
+}
+
+.gapgap-auto-copy span {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #d3cdd6;
+}
+
+.gapgap-auto-copy span::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.16s ease;
+}
+
+.gapgap-auto-copy input:checked + span {
+  background: #171717;
+}
+
+.gapgap-auto-copy input:checked + span::after {
+  transform: translateX(12px);
+}
+
+.gapgap-auto-copy strong {
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.gapgap-footer-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.gapgap-action-button {
   all: unset;
   display: inline-flex;
   height: 34px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  gap: 7px;
   border-radius: 999px;
-  background: #171717;
-  color: #ffffff;
   cursor: pointer;
-  padding: 0 13px 0 15px;
+  padding: 0 14px;
   font-size: 13px;
   font-weight: 700;
+}
+
+.gapgap-edit-button {
+  background: rgba(23, 23, 23, 0.06);
+  color: #171717;
+}
+
+.gapgap-copy-button {
+  background: #171717;
+  color: #ffffff;
+}
+
+.gapgap-edit-button:hover {
+  background: rgba(23, 23, 23, 0.1);
 }
 
 .gapgap-copy-button:hover {
   background: #2a2a2a;
 }
 
-.gapgap-copy-button svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  pointer-events: none;
+.gapgap-copy-button.success {
+  background: #237a42;
 }
 
 @media (max-width: 640px) {

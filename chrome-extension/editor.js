@@ -112,10 +112,11 @@
       window.GapGapCore.HISTORY_KEY
     ]);
     const settings = {
-      autoCopy: false,
+      popupAutoCopy: false,
+      sidePanelAutoCopy: false,
       ...(data[window.GapGapCore.SETTINGS_KEY] || {})
     };
-    autoCopy.checked = settings.autoCopy;
+    autoCopy.checked = settings.sidePanelAutoCopy;
     history = data[window.GapGapCore.HISTORY_KEY] || [];
     const current = data[window.GapGapCore.CURRENT_KEY];
     inputArea.value = current && current.input ? current.input : "";
@@ -139,7 +140,8 @@
   });
 
   autoCopy.addEventListener("change", async () => {
-    await window.GapGapCore.saveSettings({ autoCopy: autoCopy.checked });
+    const settings = await window.GapGapCore.getSettings();
+    await window.GapGapCore.saveSettings({ ...settings, sidePanelAutoCopy: autoCopy.checked });
   });
 
   openHistoryBtn.addEventListener("click", () => toggleHistoryModal(true));

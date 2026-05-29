@@ -13,14 +13,11 @@
         <span class="brand-mark"></span>
         <div>
           <h1>GapGap</h1>
-          <p>中英文混排校对</p>
         </div>
       </div>
       <button id="historyButton" class="icon-button" type="button" aria-label="历史记录" title="历史记录">
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 12a9 9 0 1 0 3-6.7"></path>
-          <path d="M3 4v6h6"></path>
-          <path d="M12 7v6l4 2"></path>
+          <path d="M13 3a9 9 0 1 1-6.36 15.36l1.42-1.42A6.96 6.96 0 0 0 13 19a7 7 0 1 0-7-7h3l-4 4-4-4h3a9 9 0 0 1 9-9Zm-1 5h2v4.26l3.08 1.83-1.03 1.72L12 13.4V8Z"></path>
         </svg>
       </button>
     </header>
@@ -44,43 +41,55 @@
     </section>
 
     <footer class="command-bar">
-      <label class="switch">
-        <input id="autoCopy" type="checkbox">
-        <span></span>
-        <strong>自动复制</strong>
-      </label>
+      <div class="switch-group">
+        <label class="switch">
+          <input id="bubbleEnabled" type="checkbox">
+          <span></span>
+          <strong>划词气泡</strong>
+        </label>
+        <label class="switch">
+          <input id="autoCopy" type="checkbox">
+          <span></span>
+          <strong>自动复制</strong>
+        </label>
+      </div>
       <button id="copyButton" class="copy-button" type="button" aria-label="复制校对结果">
         <span>复制</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 7h10v14H8z"></path>
-          <path d="M5 3h10v4H8v10H5z"></path>
-        </svg>
       </button>
     </footer>
 
     <section id="historyOverlay" class="history-overlay" aria-label="历史记录">
-      <div class="history-card">
-        <header class="history-header">
+      <header class="app-header history-page-header">
+        <div class="brand">
+          <span class="brand-mark"></span>
           <div>
-            <h2>历史记录</h2>
-            <p>点击卡片载入内容</p>
+            <h1>GapGap</h1>
           </div>
-          <div class="history-actions">
-            <button id="clearHistory" class="icon-button" type="button" aria-label="清空历史" title="清空历史">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 6h18"></path>
-                <path d="M8 6V4h8v2"></path>
-                <path d="m19 6-1 14H6L5 6"></path>
-              </svg>
-            </button>
-            <button id="closeHistoryButton" class="icon-button" type="button" aria-label="关闭历史" title="关闭历史">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18 6 6 18"></path>
-                <path d="m6 6 12 12"></path>
-              </svg>
-            </button>
-          </div>
-        </header>
+        </div>
+        <div class="history-actions">
+          <button id="clearHistory" class="icon-button" type="button" aria-label="清空全部历史" title="清空全部历史">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12Zm2-10h8v10H8V9Zm7.5-5-1-1h-5l-1 1H5v2h14V4h-3.5Z"></path>
+            </svg>
+          </button>
+          <button id="closeHistoryButton" class="icon-button" type="button" aria-label="关闭历史" title="关闭历史">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m18.3 5.71-1.41-1.42L12 9.17 7.11 4.29 5.7 5.71 10.59 10.6 5.7 15.49l1.41 1.41L12 12.01l4.89 4.89 1.41-1.41-4.89-4.89 4.89-4.89Z"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+      <div class="history-card">
+        <div class="pane-bar">
+          <span class="pill">历史记录</span>
+          <span id="historyCount">0 条</span>
+        </div>
+        <label class="history-search" aria-label="搜索历史记录">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.5 3a6.5 6.5 0 0 1 5.18 10.43l4.45 4.44-1.26 1.26-4.44-4.45A6.5 6.5 0 1 1 9.5 3Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"></path>
+          </svg>
+          <input id="historySearch" type="search" placeholder="搜索历史记录">
+        </label>
         <div id="historyList" class="history-list"></div>
       </div>
     </section>

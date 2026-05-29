@@ -68,6 +68,14 @@
     text = text.replace(new RegExp(`(?<![${latin}0-9])\\.([${cjk}])`, "g"), "\u3002$1");
 
     const addSpace = `$1${SPACE}$2`;
+    const plusLeftOperand = `[${cjk}0-9]|[${latin}0-9][${latin}0-9._\\-/²³]*`;
+    const plusRightOperand = `[${cjk}${latin}0-9]`;
+    text = text.replace(new RegExp(`(${plusLeftOperand})([ \\t]*)\\+([ \\t]*)(${plusRightOperand})`, "g"), (match, left, leftSpace, rightSpace, right) => {
+      if (/^[A-Za-z]$/.test(left) && new RegExp(`[${cjk}]`).test(right)) return match;
+      const beforePlus = leftSpace ? " " : SPACE;
+      const afterPlus = rightSpace ? " " : SPACE;
+      return `${left}${beforePlus}+${afterPlus}${right}`;
+    });
     text = text.replace(new RegExp(`([${cjk}])([${latin}0-9])`, "g"), addSpace);
     text = text.replace(new RegExp(`([${latin}0-9+#])([${cjk}])`, "g"), addSpace);
     text = text.replace(new RegExp(`([${cjk}])([.][${latin}])`, "g"), addSpace);
@@ -120,9 +128,14 @@
 
   async function getSettings() {
     const result = await getStorage([SETTINGS_KEY]);
+    const saved = result[SETTINGS_KEY] || {};
+    const legacyAutoCopy = saved.autoCopy === true;
     return {
       autoCopy: false,
-      ...(result[SETTINGS_KEY] || {})
+      bubbleEnabled: true,
+      popupAutoCopy: legacyAutoCopy,
+      sidePanelAutoCopy: legacyAutoCopy,
+      ...saved
     };
   }
 
