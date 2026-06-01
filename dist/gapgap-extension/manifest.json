@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "GapGap",
   "description": "中英文混排校对：划词后快速检测、复制，并保存历史记录。",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
