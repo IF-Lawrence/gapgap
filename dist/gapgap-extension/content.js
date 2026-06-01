@@ -61,12 +61,82 @@
   const panelHeader = panel.querySelector(".gapgap-result-header");
   const popupAutoCopy = panel.querySelector(".gapgap-auto-copy-input");
 
+  function activeTextControl() {
+    const element = document.activeElement;
+    if (!element || element.disabled) return null;
+    if (element instanceof HTMLTextAreaElement) return element;
+    if (!(element instanceof HTMLInputElement)) return null;
+    const textTypes = new Set(["", "email", "number", "password", "search", "tel", "text", "url"]);
+    return textTypes.has(element.type) ? element : null;
+  }
+
+  function getControlSelectionText(control) {
+    if (!control || typeof control.selectionStart !== "number" || typeof control.selectionEnd !== "number") return "";
+    if (control.selectionStart === control.selectionEnd) return "";
+    return control.value.slice(control.selectionStart, control.selectionEnd).trim();
+  }
+
   function getSelectionText() {
+    const controlText = getControlSelectionText(activeTextControl());
+    if (controlText) return controlText;
     const selection = window.getSelection();
     return selection ? selection.toString().trim() : "";
   }
 
+  function controlSelectionRect(control) {
+    if (!control || typeof control.selectionEnd !== "number") return null;
+    const rect = control.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+
+    const styles = window.getComputedStyle(control);
+    const mirror = document.createElement("div");
+    const marker = document.createElement("span");
+    const copiedProperties = [
+      "boxSizing", "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+      "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "fontFamily", "fontSize",
+      "fontStyle", "fontVariant", "fontWeight", "letterSpacing", "lineHeight", "textTransform",
+      "textIndent", "textAlign", "wordSpacing", "tabSize", "whiteSpace", "wordBreak"
+    ];
+
+    copiedProperties.forEach((property) => {
+      mirror.style[property] = styles[property];
+    });
+    mirror.style.position = "fixed";
+    mirror.style.visibility = "hidden";
+    mirror.style.pointerEvents = "none";
+    mirror.style.top = `${rect.top - control.scrollTop}px`;
+    mirror.style.left = `${rect.left - control.scrollLeft}px`;
+    mirror.style.width = `${rect.width}px`;
+    mirror.style.minHeight = `${rect.height}px`;
+    mirror.style.overflow = "hidden";
+    mirror.style.whiteSpace = control instanceof HTMLTextAreaElement ? "pre-wrap" : "pre";
+    mirror.style.overflowWrap = "break-word";
+
+    const valueBeforeSelectionEnd = control.value.slice(0, control.selectionEnd);
+    mirror.append(document.createTextNode(valueBeforeSelectionEnd || "."));
+    marker.textContent = "\u200b";
+    mirror.append(marker);
+    document.documentElement.append(mirror);
+
+    const markerRect = marker.getBoundingClientRect();
+    mirror.remove();
+    if (!markerRect.width && !markerRect.height) return rect;
+
+    const left = Math.min(Math.max(markerRect.left, rect.left), rect.right);
+    const top = Math.min(Math.max(markerRect.top, rect.top), rect.bottom);
+    return {
+      top,
+      right: left,
+      bottom: top + Math.max(markerRect.height, parseFloat(styles.lineHeight) || 16),
+      left,
+      width: 1,
+      height: Math.max(markerRect.height, parseFloat(styles.lineHeight) || 16)
+    };
+  }
+
   function selectionRect() {
+    const controlRect = controlSelectionRect(activeTextControl());
+    if (controlRect) return controlRect;
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return null;
     const range = selection.getRangeAt(0);
