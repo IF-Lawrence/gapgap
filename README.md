@@ -55,6 +55,26 @@
 
 直接打开 `chrome-extension/dev.html` 可以预览网页注入后的气泡和面板。右侧控制区支持实时调整面板宽度、高度、历史栏宽度和边距，并生成对应的 CSS 变量值，方便同步回 `content.css`。
 
+## Figma 插件版本
+
+插件源码位于 `figma-plugin/`，复用了 GapGap 的中英文混排校对规则，并改为使用 Figma Plugin API。
+
+### 本地加载
+
+1. 运行 `node figma-plugin/build-ui.js` 生成 `figma-plugin/ui.bundle.html`
+2. 打开 Figma 桌面版
+3. 进入 `Plugins` → `Development` → `Import plugin from manifest...`
+4. 选择 `figma-plugin/manifest.json`
+
+### 插件功能
+
+- 读取当前选中的文本图层并自动校对
+- 一键复制校对结果
+- 将校对结果写回选中的文本图层
+- 只支持单个文本图层，避免多图层写回时误改内容
+- 历史记录和设置保存在 `figma.clientStorage`
+- `Plugins` 菜单里可直接执行「校对所选文本」
+
 ## 技术栈
 
 - 纯前端实现（HTML + CSS + JavaScript）

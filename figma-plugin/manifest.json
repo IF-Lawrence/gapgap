@@ -1,0 +1,21 @@
+{
+  "name": "GapGap",
+  "id": "gapgap-figma-plugin",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.bundle.html",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
+  "menu": [
+    {
+      "name": "打开校对面板",
+      "command": "open"
+    },
+    {
+      "name": "校对所选文本",
+      "command": "format-selection"
+    }
+  ]
+}

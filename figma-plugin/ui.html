@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GapGap</title>
+  <link rel="stylesheet" href="ui.css">
+</head>
+<body>
+  <main class="plugin-shell">
+    <header class="toolbar">
+      <div class="brand">
+        <strong>GapGap</strong>
+        <span id="selectionStatus">未选择文本图层</span>
+      </div>
+      <button id="loadSelectionButton" class="icon-button" type="button" title="读取选中文本" aria-label="读取选中文本">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5V2L7 7l5 5V9a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <section class="workspace" aria-label="校对工作台">
+      <section class="pane" aria-label="原文">
+        <div class="pane-bar">
+          <span class="pill">原文</span>
+          <span id="inputCount">0 字符 / 0 字</span>
+        </div>
+        <textarea id="inputText" spellcheck="false" placeholder="输入文本，或读取当前选中的文本图层"></textarea>
+      </section>
+
+      <section class="pane result-pane" aria-label="校对结果">
+        <div class="pane-bar">
+          <span id="resultStatus">暂无结果</span>
+          <span id="resultCount">0 字符 / 0 字</span>
+        </div>
+        <div id="result" class="result" contenteditable="true" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <footer class="command-bar">
+      <label class="switch">
+        <input id="autoCopy" type="checkbox">
+        <span></span>
+        <strong>自动复制</strong>
+      </label>
+      <div class="command-actions">
+        <button id="historyButton" class="icon-button" type="button" title="历史记录" aria-label="历史记录">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M13 3a9 9 0 1 1-6.36 15.36l1.42-1.42A6.96 6.96 0 0 0 13 19a7 7 0 1 0-7-7h3l-4 4-4-4h3a9 9 0 0 1 9-9Zm-1 5h2v4.26l3.08 1.83-1.03 1.72L12 13.4V8Z"></path>
+          </svg>
+        </button>
+        <button id="applyButton" class="secondary-button" type="button">写回</button>
+        <button id="copyButton" class="primary-button" type="button">复制</button>
+      </div>
+    </footer>
+
+    <section id="historyOverlay" class="history-overlay" aria-label="历史记录">
+      <div class="history-card">
+        <div class="pane-bar">
+          <span class="pill">历史记录</span>
+          <span id="historyCount">0 条</span>
+        </div>
+        <label class="history-search" aria-label="搜索历史记录">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.5 3a6.5 6.5 0 0 1 5.18 10.43l4.45 4.44-1.26 1.26-4.44-4.45A6.5 6.5 0 1 1 9.5 3Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"></path>
+          </svg>
+          <input id="historySearch" type="search" placeholder="搜索历史记录">
+        </label>
+        <div id="historyList" class="history-list"></div>
+      </div>
+      <footer class="command-bar history-command-bar">
+        <button id="clearHistory" class="icon-button" type="button" aria-label="清空全部历史" title="清空全部历史">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12Zm2-10h8v10H8V9Zm7.5-5-1-1h-5l-1 1H5v2h14V4h-3.5Z"></path>
+          </svg>
+        </button>
+        <button id="closeHistoryButton" class="primary-button" type="button">关闭</button>
+      </footer>
+    </section>
+  </main>
+
+  <script src="ui.js"></script>
+</body>
+</html>
