@@ -16,6 +16,10 @@
   const historyCount = document.getElementById("historyCount");
   const clearHistory = document.getElementById("clearHistory");
   const closeHistoryButton = document.getElementById("closeHistoryButton");
+  const resizeHandle = document.getElementById("resizeHandle");
+
+  const MIN_UI_SIZE = { width: 360, height: 480 };
+  const MAX_UI_SIZE = { width: 960, height: 960 };
 
   let currentOutput = "";
   let history = [];
@@ -24,6 +28,7 @@
   let formatTimer = 0;
   let lastInput = "";
   let lastSelectionText = "";
+  let uiSize = { width: 420, height: 640 };
 
   function assign(target) {
     for (let index = 1; index < arguments.length; index += 1) {
@@ -50,6 +55,15 @@
   function setCount(element, value) {
     const count = countText(value || "");
     element.textContent = `${count.chars} 字符 / ${count.words} 字`;
+  }
+
+  function normalizeUiSize(size) {
+    const width = Number(size && size.width) || uiSize.width;
+    const height = Number(size && size.height) || uiSize.height;
+    return {
+      width: Math.min(MAX_UI_SIZE.width, Math.max(MIN_UI_SIZE.width, Math.round(width))),
+      height: Math.min(MAX_UI_SIZE.height, Math.max(MIN_UI_SIZE.height, Math.round(height)))
+    };
   }
 
   function escapeHTML(value) {
@@ -338,6 +352,53 @@
     post("CLEAR_HISTORY");
   });
 
+  resizeHandle.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+
+    const pointerId = event.pointerId;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startWidth = window.innerWidth || uiSize.width;
+    const startHeight = window.innerHeight || uiSize.height;
+    let nextSize = normalizeUiSize({ width: startWidth, height: startHeight });
+    let frame = 0;
+
+    resizeHandle.setPointerCapture(pointerId);
+    document.body.classList.add("is-resizing");
+
+    const sendResize = (persist) => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        uiSize = nextSize;
+        post("RESIZE", assign({}, nextSize, { persist }));
+      });
+    };
+
+    const onPointerMove = (moveEvent) => {
+      nextSize = normalizeUiSize({
+        width: startWidth + moveEvent.clientX - startX,
+        height: startHeight + moveEvent.clientY - startY
+      });
+      sendResize(false);
+    };
+
+    const onPointerUp = () => {
+      if (frame) cancelAnimationFrame(frame);
+      resizeHandle.releasePointerCapture(pointerId);
+      resizeHandle.removeEventListener("pointermove", onPointerMove);
+      resizeHandle.removeEventListener("pointerup", onPointerUp);
+      resizeHandle.removeEventListener("pointercancel", onPointerUp);
+      document.body.classList.remove("is-resizing");
+      uiSize = nextSize;
+      post("RESIZE", assign({}, nextSize, { persist: true }));
+    };
+
+    resizeHandle.addEventListener("pointermove", onPointerMove);
+    resizeHandle.addEventListener("pointerup", onPointerUp);
+    resizeHandle.addEventListener("pointercancel", onPointerUp);
+  });
+
   window.onmessage = async (event) => {
     const message = event.data.pluginMessage;
     if (!message || !message.type) return;
@@ -345,6 +406,7 @@
     if (message.type === "INIT") {
       history = message.history || [];
       settings = assign({ autoCopy: false }, message.settings || {});
+      uiSize = normalizeUiSize(message.uiSize);
       autoCopy.checked = settings.autoCopy === true;
       renderHistory();
       if (message.selection && message.selection.text) {
@@ -379,6 +441,11 @@
     if (message.type === "SETTINGS_UPDATED") {
       settings = assign({ autoCopy: false }, message.settings || {});
       autoCopy.checked = settings.autoCopy === true;
+      return;
+    }
+
+    if (message.type === "UI_SIZE_UPDATED") {
+      uiSize = normalizeUiSize(message.uiSize);
       return;
     }
 

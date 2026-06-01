@@ -4,19 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GapGap</title>
+  <link rel="icon" type="image/png" href="icon-32.png">
   <style>
 :root {
   color-scheme: light;
-  --bg: #f3f4f5;
-  --surface: #ffffff;
-  --surface-soft: #f7f7f8;
-  --result: #f1f7f4;
-  --border: rgba(20, 23, 26, 0.12);
-  --text: #17191c;
-  --muted: #687078;
-  --primary: #17191c;
-  --primary-hover: #303338;
-  --accent-soft: #dff2e8;
+  --bg: #f2f2f2;
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-solid: #ffffff;
+  --surface-soft: #f7f3f8;
+  --result: rgba(253, 243, 255, 0.9);
+  --border: rgba(26, 22, 28, 0.1);
+  --result-border: rgba(139, 53, 201, 0.18);
+  --text: #17151a;
+  --muted: #756d78;
+  --primary: #151515;
+  --primary-hover: #2b2b2b;
+  --accent-soft: #efd2f2;
   --danger: #ba1a1a;
   --success: #237a42;
 }
@@ -34,9 +37,11 @@ body {
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255, 255, 255, 0.9), transparent 30%),
+    linear-gradient(180deg, #f4f4f4 0%, #ececec 100%);
   color: var(--text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Noto Sans SC", sans-serif;
 }
 
 button,
@@ -52,14 +57,13 @@ button {
 .plugin-shell {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   gap: 12px;
   height: 100vh;
   padding: 12px;
   overflow: hidden;
 }
 
-.toolbar,
 .command-bar {
   display: flex;
   min-height: 52px;
@@ -68,22 +72,10 @@ button {
   gap: 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.74);
   padding: 8px 10px;
 }
 
-.brand {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-}
-
-.brand strong {
-  font-size: 14px;
-  line-height: 18px;
-}
-
-.brand span,
 .pane-bar {
   color: var(--muted);
   font-size: 12px;
@@ -114,6 +106,7 @@ button {
 
 .result-pane {
   background: var(--result);
+  border-color: var(--result-border);
 }
 
 .pane-bar {
@@ -133,6 +126,14 @@ button {
   white-space: nowrap;
 }
 
+.selection-tools {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
 .pill {
   display: inline-flex;
   height: 22px;
@@ -143,6 +144,19 @@ button {
   padding: 0 9px;
   font-size: 12px;
   font-weight: 700;
+}
+
+.pane-footer-meta {
+  display: flex;
+  min-height: 28px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  padding: 5px 12px;
+  font-size: 12px;
+  line-height: 18px;
 }
 
 textarea {
@@ -163,7 +177,7 @@ textarea {
 }
 
 textarea::placeholder {
-  color: #8f979f;
+  color: #9a929c;
 }
 
 .result {
@@ -172,7 +186,7 @@ textarea::placeholder {
   overflow: auto;
   outline: none;
   padding: 12px;
-  color: #24282c;
+  color: #29242d;
   font-size: 13px;
   line-height: 1.62;
   white-space: pre-wrap;
@@ -198,7 +212,7 @@ textarea::placeholder {
   padding: 0 0.28em;
   border-radius: 5px;
   background: var(--accent-soft);
-  color: #18241e;
+  color: #241424;
   line-height: 1.25;
 }
 
@@ -206,7 +220,7 @@ textarea::placeholder {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--text);
+  color: var(--muted);
   font-size: 12px;
   line-height: 18px;
 }
@@ -222,7 +236,7 @@ textarea::placeholder {
   width: 34px;
   height: 20px;
   border-radius: 999px;
-  background: #c9ced4;
+  background: #d3cdd6;
   transition: background 160ms ease;
 }
 
@@ -235,6 +249,7 @@ textarea::placeholder {
   height: 14px;
   border-radius: 50%;
   background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
   transition: transform 160ms ease;
 }
 
@@ -292,7 +307,7 @@ textarea::placeholder {
 
 .secondary-button:hover,
 .icon-button:hover {
-  background: rgba(23, 25, 28, 0.07);
+  background: rgba(23, 23, 23, 0.07);
 }
 
 .icon-button {
@@ -304,10 +319,40 @@ textarea::placeholder {
   color: var(--text);
 }
 
+.inline-icon-button {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+}
+
 .icon-button svg {
   width: 19px;
   height: 19px;
   fill: currentColor;
+}
+
+.resize-handle {
+  position: fixed;
+  right: 4px;
+  bottom: 4px;
+  z-index: 30;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: nwse-resize;
+  opacity: 0;
+}
+
+.resize-handle:hover,
+.resize-handle:focus-visible {
+  outline: none;
+}
+
+body.is-resizing {
+  cursor: nwse-resize;
+  user-select: none;
 }
 
 .history-overlay {
@@ -318,8 +363,8 @@ textarea::placeholder {
   grid-template-rows: minmax(0, 1fr) auto;
   gap: 12px;
   padding: 12px;
-  background: rgba(243, 244, 245, 0.82);
-  backdrop-filter: blur(12px);
+  background: rgba(242, 242, 242, 0.72);
+  backdrop-filter: blur(14px);
 }
 
 .history-overlay.visible {
@@ -330,6 +375,7 @@ textarea::placeholder {
   display: flex;
   min-height: 0;
   flex-direction: column;
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .history-command-bar {
@@ -389,7 +435,7 @@ textarea::placeholder {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--surface-solid);
   color: var(--text);
   padding: 8px;
   text-align: left;
@@ -460,25 +506,23 @@ textarea::placeholder {
 </head>
 <body>
   <main class="plugin-shell">
-    <header class="toolbar">
-      <div class="brand">
-        <strong>GapGap</strong>
-        <span id="selectionStatus">未选择文本图层</span>
-      </div>
-      <button id="loadSelectionButton" class="icon-button" type="button" title="读取选中文本" aria-label="读取选中文本">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5V2L7 7l5 5V9a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"></path>
-        </svg>
-      </button>
-    </header>
-
     <section class="workspace" aria-label="校对工作台">
       <section class="pane" aria-label="原文">
         <div class="pane-bar">
           <span class="pill">原文</span>
-          <span id="inputCount">0 字符 / 0 字</span>
+          <span class="selection-tools">
+            <span id="selectionStatus">未选择文本图层</span>
+            <button id="loadSelectionButton" class="icon-button inline-icon-button" type="button" title="读取选中文本" aria-label="读取选中文本">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5V2L7 7l5 5V9a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"></path>
+              </svg>
+            </button>
+          </span>
         </div>
         <textarea id="inputText" spellcheck="false" placeholder="输入文本，或读取当前选中的文本图层"></textarea>
+        <div class="pane-footer-meta">
+          <span id="inputCount">0 字符 / 0 字</span>
+        </div>
       </section>
 
       <section class="pane result-pane" aria-label="校对结果">
@@ -530,6 +574,7 @@ textarea::placeholder {
         <button id="closeHistoryButton" class="primary-button" type="button">关闭</button>
       </footer>
     </section>
+    <button id="resizeHandle" class="resize-handle" type="button" aria-label="调整面板大小" title="拖动调整面板大小"></button>
   </main>
 
   <script>
@@ -551,6 +596,10 @@ textarea::placeholder {
   const historyCount = document.getElementById("historyCount");
   const clearHistory = document.getElementById("clearHistory");
   const closeHistoryButton = document.getElementById("closeHistoryButton");
+  const resizeHandle = document.getElementById("resizeHandle");
+
+  const MIN_UI_SIZE = { width: 360, height: 480 };
+  const MAX_UI_SIZE = { width: 960, height: 960 };
 
   let currentOutput = "";
   let history = [];
@@ -559,6 +608,7 @@ textarea::placeholder {
   let formatTimer = 0;
   let lastInput = "";
   let lastSelectionText = "";
+  let uiSize = { width: 420, height: 640 };
 
   function assign(target) {
     for (let index = 1; index < arguments.length; index += 1) {
@@ -585,6 +635,15 @@ textarea::placeholder {
   function setCount(element, value) {
     const count = countText(value || "");
     element.textContent = `${count.chars} 字符 / ${count.words} 字`;
+  }
+
+  function normalizeUiSize(size) {
+    const width = Number(size && size.width) || uiSize.width;
+    const height = Number(size && size.height) || uiSize.height;
+    return {
+      width: Math.min(MAX_UI_SIZE.width, Math.max(MIN_UI_SIZE.width, Math.round(width))),
+      height: Math.min(MAX_UI_SIZE.height, Math.max(MIN_UI_SIZE.height, Math.round(height)))
+    };
   }
 
   function escapeHTML(value) {
@@ -873,6 +932,53 @@ textarea::placeholder {
     post("CLEAR_HISTORY");
   });
 
+  resizeHandle.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+
+    const pointerId = event.pointerId;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startWidth = window.innerWidth || uiSize.width;
+    const startHeight = window.innerHeight || uiSize.height;
+    let nextSize = normalizeUiSize({ width: startWidth, height: startHeight });
+    let frame = 0;
+
+    resizeHandle.setPointerCapture(pointerId);
+    document.body.classList.add("is-resizing");
+
+    const sendResize = (persist) => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        uiSize = nextSize;
+        post("RESIZE", assign({}, nextSize, { persist }));
+      });
+    };
+
+    const onPointerMove = (moveEvent) => {
+      nextSize = normalizeUiSize({
+        width: startWidth + moveEvent.clientX - startX,
+        height: startHeight + moveEvent.clientY - startY
+      });
+      sendResize(false);
+    };
+
+    const onPointerUp = () => {
+      if (frame) cancelAnimationFrame(frame);
+      resizeHandle.releasePointerCapture(pointerId);
+      resizeHandle.removeEventListener("pointermove", onPointerMove);
+      resizeHandle.removeEventListener("pointerup", onPointerUp);
+      resizeHandle.removeEventListener("pointercancel", onPointerUp);
+      document.body.classList.remove("is-resizing");
+      uiSize = nextSize;
+      post("RESIZE", assign({}, nextSize, { persist: true }));
+    };
+
+    resizeHandle.addEventListener("pointermove", onPointerMove);
+    resizeHandle.addEventListener("pointerup", onPointerUp);
+    resizeHandle.addEventListener("pointercancel", onPointerUp);
+  });
+
   window.onmessage = async (event) => {
     const message = event.data.pluginMessage;
     if (!message || !message.type) return;
@@ -880,6 +986,7 @@ textarea::placeholder {
     if (message.type === "INIT") {
       history = message.history || [];
       settings = assign({ autoCopy: false }, message.settings || {});
+      uiSize = normalizeUiSize(message.uiSize);
       autoCopy.checked = settings.autoCopy === true;
       renderHistory();
       if (message.selection && message.selection.text) {
@@ -914,6 +1021,11 @@ textarea::placeholder {
     if (message.type === "SETTINGS_UPDATED") {
       settings = assign({ autoCopy: false }, message.settings || {});
       autoCopy.checked = settings.autoCopy === true;
+      return;
+    }
+
+    if (message.type === "UI_SIZE_UPDATED") {
+      uiSize = normalizeUiSize(message.uiSize);
       return;
     }
 

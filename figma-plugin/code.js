@@ -1,7 +1,11 @@
 const HISTORY_KEY = "gapgapHistory";
 const SETTINGS_KEY = "gapgapSettings";
 const CURRENT_KEY = "gapgapCurrent";
+const UI_SIZE_KEY = "gapgapUiSize";
 const MAX_HISTORY = 50;
+const MIN_UI_SIZE = { width: 360, height: 480 };
+const MAX_UI_SIZE = { width: 960, height: 960 };
+const DEFAULT_UI_SIZE_VALUE = { width: 420, height: 640 };
 
 const DEFAULT_SETTINGS = {
   autoCopy: false
@@ -27,6 +31,15 @@ function postToUi(message) {
 function countWords(value) {
   const matches = value.match(/[a-zA-Z0-9]+|[\u4e00-\u9fa5]/g);
   return matches ? matches.length : 0;
+}
+
+function normalizeUiSize(size) {
+  const width = Number(size && size.width) || DEFAULT_UI_SIZE_VALUE.width;
+  const height = Number(size && size.height) || DEFAULT_UI_SIZE_VALUE.height;
+  return {
+    width: Math.min(MAX_UI_SIZE.width, Math.max(MIN_UI_SIZE.width, Math.round(width))),
+    height: Math.min(MAX_UI_SIZE.height, Math.max(MIN_UI_SIZE.height, Math.round(height)))
+  };
 }
 
 function formatText(value) {
@@ -81,6 +94,8 @@ function formatText(value) {
   text = text.replace(new RegExp(`(?<![${latin}0-9])\\.([${cjk}])`, "g"), "\u3002$1");
 
   const addSpace = `$1${SPACE}$2`;
+  const normalizeSpace = "$1 $2";
+  const protectedMarker = "\uE100[\uE200-\uE2ff]\uE101";
   const plusLeftOperand = `[${cjk}0-9]|[${latin}0-9][${latin}0-9._\\-/²³]*`;
   const plusRightOperand = `[${cjk}${latin}0-9]`;
   text = text.replace(new RegExp(`(${plusLeftOperand})([ \\t]*)\\+([ \\t]*)(${plusRightOperand})`, "g"), (match, left, leftSpace, rightSpace, right) => {
@@ -89,6 +104,18 @@ function formatText(value) {
     const afterPlus = rightSpace ? " " : SPACE;
     return `${left}${beforePlus}+${afterPlus}${right}`;
   });
+  text = text.replace(new RegExp(`([${cjk}])[ \\t]+([${latin}0-9])`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`([${latin}0-9+#])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`([${cjk}])[ \\t]+([.][${latin}])`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*\\.)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`([${cjk}])[ \\t]+([“‘「『])([${latin}0-9])`, "g"), `$1 $2$3`);
+  text = text.replace(new RegExp(`([${latin}0-9])([”’」』])[ \\t]+([${cjk}])`, "g"), `$1$2 $3`);
+  text = text.replace(new RegExp(`([${cjk}])[ \\t]+([—-])([${latin}0-9])`, "g"), `$1 $2$3`);
+  text = text.replace(new RegExp(`([${latin}0-9])([—-])[ \\t]+([${cjk}])`, "g"), `$1$2 $3`);
+  text = text.replace(new RegExp(`([%‰℃℉°])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`([${cjk}])[ \\t]+(${protectedMarker})`, "g"), normalizeSpace);
+  text = text.replace(new RegExp(`(${protectedMarker})[ \\t]+([${cjk}])`, "g"), normalizeSpace);
   text = text.replace(new RegExp(`([${cjk}])([${latin}0-9])`, "g"), addSpace);
   text = text.replace(new RegExp(`([${latin}0-9+#])([${cjk}])`, "g"), addSpace);
   text = text.replace(new RegExp(`([${cjk}])([.][${latin}])`, "g"), addSpace);
@@ -134,16 +161,18 @@ function formatText(value) {
 }
 
 async function getData() {
-  const [history, settings, current] = await Promise.all([
+  const [history, settings, current, uiSize] = await Promise.all([
     figma.clientStorage.getAsync(HISTORY_KEY),
     figma.clientStorage.getAsync(SETTINGS_KEY),
-    figma.clientStorage.getAsync(CURRENT_KEY)
+    figma.clientStorage.getAsync(CURRENT_KEY),
+    figma.clientStorage.getAsync(UI_SIZE_KEY)
   ]);
 
   return {
     history: Array.isArray(history) ? history : [],
     settings: assign({}, DEFAULT_SETTINGS, settings || {}),
-    current: current || null
+    current: current || null,
+    uiSize: normalizeUiSize(uiSize)
   };
 }
 
@@ -224,8 +253,8 @@ async function loadTextNodeFonts(node) {
   }
 }
 
-async function sendInitialData() {
-  const data = await getData();
+async function sendInitialData(data) {
+  data = data || await getData();
   postToUi(assign({
     type: "INIT",
     selection: selectionPayload()
@@ -233,9 +262,10 @@ async function sendInitialData() {
 }
 
 async function openUi() {
-  figma.showUI(__html__, { width: 420, height: 640, themeColors: true });
+  const data = await getData();
+  figma.showUI(__html__, assign({}, data.uiSize, { themeColors: true }));
   hasUi = true;
-  await sendInitialData();
+  await sendInitialData(data);
 }
 
 async function formatSelectionCommand() {
@@ -313,7 +343,12 @@ figma.ui.onmessage = async (message) => {
   }
 
   if (message.type === "RESIZE") {
-    figma.ui.resize(Math.max(360, message.width || 420), Math.max(480, message.height || 640));
+    const uiSize = normalizeUiSize(message);
+    figma.ui.resize(uiSize.width, uiSize.height);
+    if (message.persist !== false) {
+      await figma.clientStorage.setAsync(UI_SIZE_KEY, uiSize);
+      postToUi({ type: "UI_SIZE_UPDATED", uiSize });
+    }
     return;
   }
 

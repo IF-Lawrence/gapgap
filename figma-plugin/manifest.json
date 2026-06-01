@@ -1,9 +1,15 @@
 {
   "name": "GapGap",
-  "id": "gapgap-figma-plugin",
+  "id": "1643282507721267466",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.bundle.html",
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  },
   "editorType": [
     "figma",
     "figjam"

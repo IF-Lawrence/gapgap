@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中英文校对工作台 (Material Design 3)</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <!-- Google Fonts: Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,11 +55,45 @@
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        .workbench {
+        .app-shell {
             width: 100%;
             max-width: 1600px;
             height: calc(100vh - 48px);
             max-height: 1200px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .app-title {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 0 4px;
+        }
+
+        .app-title h1,
+        .app-title p {
+            margin: 0;
+        }
+
+        .app-title h1 {
+            font-size: 24px;
+            line-height: 32px;
+            color: var(--md-sys-color-on-background);
+        }
+
+        .app-title p {
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: var(--md-sys-typescale-body-medium-font-size);
+            line-height: var(--md-sys-typescale-body-medium-line-height);
+            font-weight: 500;
+        }
+
+        .workbench {
+            width: 100%;
+            min-height: 0;
             display: flex;
             gap: 16px;
         }
@@ -377,8 +412,16 @@
 
             .workbench {
                 flex-direction: column;
+                gap: 0;
+            }
+
+            .app-shell {
                 height: 100vh;
                 gap: 0;
+            }
+
+            .app-title {
+                display: none;
             }
 
             .pane {
@@ -400,31 +443,38 @@
 
 <body>
 
-    <div class="workbench">
-        <div class="pane">
-            <div class="pane-header">原文</div>
-            <div class="editor-container">
-                <textarea id="input-area" class="editor-content" placeholder="输入或粘贴您的原始文本..."></textarea>
+    <main class="app-shell">
+        <header class="app-title">
+            <h1>GapGap</h1>
+            <p>No more ghost gaps</p>
+        </header>
+
+        <div class="workbench">
+            <div class="pane">
+                <div class="pane-header">原文</div>
+                <div class="editor-container">
+                    <textarea id="input-area" class="editor-content" placeholder="输入或粘贴您的原始文本..."></textarea>
+                </div>
+                <div class="pane-footer">
+                    <div class="status-bar" id="input-status">0 字符 / 0 字</div>
+                </div>
             </div>
-            <div class="pane-footer">
-                <div class="status-bar" id="input-status">0 字符 / 0 字</div>
-            </div>
-        </div>
-        <div class="pane">
-            <div class="pane-header">校对</div>
-            <div class="editor-container">
-                <div id="output-area" class="editor-content" contenteditable="true"></div>
-            </div>
-            <div class="pane-footer">
-                <div class="status-bar" id="output-status">0 字符 / 0 字</div>
-                <div class="footer-controls">
-                    <button class="m3-button m3-button--tonal" id="toggleHighlightBtn">隐藏高亮</button>
-                    <button class="m3-button m3-button--tonal" id="openHistoryBtn">历史</button>
-                    <button class="m3-button m3-button--filled" id="copyButton">复制</button>
+            <div class="pane">
+                <div class="pane-header">校对</div>
+                <div class="editor-container">
+                    <div id="output-area" class="editor-content" contenteditable="true"></div>
+                </div>
+                <div class="pane-footer">
+                    <div class="status-bar" id="output-status">0 字符 / 0 字</div>
+                    <div class="footer-controls">
+                        <button class="m3-button m3-button--tonal" id="toggleHighlightBtn">隐藏高亮</button>
+                        <button class="m3-button m3-button--tonal" id="openHistoryBtn">历史</button>
+                        <button class="m3-button m3-button--filled" id="copyButton">复制</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <div id="history-modal" class="history-modal-overlay">
         <div class="history-panel">
@@ -515,6 +565,8 @@
             t = t.replace(new RegExp(`(?<![${latin}0-9])\\.([${cjk}])`, "g"), "\u3002$1");
 
             const addSpace = `$1${SPACE}$2`;
+            const normalizeSpace = "$1 $2";
+            const protectedMarker = "\uE100[\uE200-\uE2ff]\uE101";
             const plusLeftOperand = `[${cjk}0-9]|[${latin}0-9][${latin}0-9._\\-/²³]*`;
             const plusRightOperand = `[${cjk}${latin}0-9]`;
             t = t.replace(new RegExp(`(${plusLeftOperand})([ \\t]*)\\+([ \\t]*)(${plusRightOperand})`, "g"), (match, left, leftSpace, rightSpace, right) => {
@@ -523,6 +575,18 @@
                 const afterPlus = rightSpace ? " " : SPACE;
                 return `${left}${beforePlus}+${afterPlus}${right}`;
             });
+            t = t.replace(new RegExp(`([${cjk}])[ \\t]+([${latin}0-9])`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`([${latin}0-9+#])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`([${cjk}])[ \\t]+([.][${latin}])`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*\\.)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`([${cjk}])[ \\t]+([“‘「『])([${latin}0-9])`, "g"), `$1 $2$3`);
+            t = t.replace(new RegExp(`([${latin}0-9])([”’」』])[ \\t]+([${cjk}])`, "g"), `$1$2 $3`);
+            t = t.replace(new RegExp(`([${cjk}])[ \\t]+([—-])([${latin}0-9])`, "g"), `$1 $2$3`);
+            t = t.replace(new RegExp(`([${latin}0-9])([—-])[ \\t]+([${cjk}])`, "g"), `$1$2 $3`);
+            t = t.replace(new RegExp(`([%‰℃℉°])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`([${cjk}])[ \\t]+(${protectedMarker})`, "g"), normalizeSpace);
+            t = t.replace(new RegExp(`(${protectedMarker})[ \\t]+([${cjk}])`, "g"), normalizeSpace);
             t = t.replace(new RegExp(`([${cjk}])([${latin}0-9])`, "g"), addSpace);
             t = t.replace(new RegExp(`([${latin}0-9+#])([${cjk}])`, "g"), addSpace);
             t = t.replace(new RegExp(`([${cjk}])([.][${latin}])`, "g"), addSpace);

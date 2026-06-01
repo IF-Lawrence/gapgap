@@ -80,6 +80,11 @@ p,
   font-size: 12px;
 }
 
+.slogan {
+  color: var(--text);
+  font-weight: 650;
+}
+
 .switch {
   gap: 8px;
   color: var(--muted);

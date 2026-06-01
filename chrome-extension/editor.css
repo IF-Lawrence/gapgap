@@ -38,11 +38,44 @@ body {
   font-family: var(--md-sys-font-family);
 }
 
-.workbench {
+.app-shell {
   width: 100%;
   max-width: 1600px;
   height: calc(100vh - 48px);
   max-height: 1200px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+}
+
+.app-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4px;
+}
+
+.app-title h1,
+.app-title p {
+  margin: 0;
+}
+
+.app-title h1 {
+  color: var(--md-sys-color-on-background);
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.app-title p {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 20px;
+}
+
+.workbench {
+  min-height: 0;
   display: flex;
   gap: 16px;
 }
