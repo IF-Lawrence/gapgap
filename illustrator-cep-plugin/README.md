@@ -11,6 +11,8 @@
 
 ## macOS 一键安装
 
+下载地址：[gapgap-illustrator-cep-macos.zip](https://github.com/IF-Lawrence/gapgap/releases/download/illustrator-cep-v0.1.0/gapgap-illustrator-cep-macos.zip)
+
 1. 解压 `gapgap-illustrator-cep-macos.zip`。
 2. 双击 `install-macos.command`。
 3. 如果 macOS 提示无法打开，右键点击文件，选择「打开」。
