@@ -22,7 +22,6 @@
         <span class="gapgap-brand-dot">${logoImage}</span>
         <span class="gapgap-brand-copy">
           <strong>GapGap</strong>
-          <span>No more ghost gaps</span>
         </span>
       </div>
       <div class="gapgap-header-actions">
