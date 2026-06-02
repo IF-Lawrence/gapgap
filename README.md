@@ -31,7 +31,6 @@ GapGap 是开源项目，代码以 MIT License 发布。你可以自由使用、
 - 高亮显示修改位置（可切换显示/隐藏）
 - 一键复制校对后的文本
 - 历史记录功能（最多保存 8 条）
-- 多种 Material Design 3 主题（随机切换）
 - 响应式设计，支持移动端
 
 ## 三个平台说明
@@ -63,7 +62,7 @@ Chrome 插件适合在浏览网页时快速校对。插件支持网页划词后�
 
 Figma 插件适合在设计文件中校对文本图层。它会读取当前选中的文本图层，生成校对结果，并支持复制或写回选中的文本图层。
 
-发布地址：待补充
+发布地址：[https://www.figma.com/community/plugin/1643282507721267466/gapgap](https://www.figma.com/community/plugin/1643282507721267466/gapgap)
 
 插件源码位于 `figma-plugin/`，复用了 GapGap 的中英文混排校对规则，并改为使用 Figma Plugin API。
 
@@ -89,7 +88,7 @@ macOS 安装包下载：[gapgap-illustrator-cep-macos.zip](https://github.com/IF
 index.html
 ```
 
-当前线上地址为 [https://acesiare.com/GapGap/](https://acesiare.com/GapGap/)。发布时通常只需要上传 `index.html` 和 `favicon.png`。
+发布时通常只需要上传 `index.html` 和 `favicon.png`。
 
 ### Chrome 插件打包
 
@@ -204,7 +203,7 @@ GapGap 的校对逻辑在本地运行。网页版使用浏览器本地能力处�
 
 ## 参与贡献
 
-欢迎提交 Issue 或 Pull Request。修改校对规则时，请同步检查网页版、Chrome 插件和 Figma 插件，避免三端行为不一致。更多说明见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+欢迎提交 Issue 或 Pull Request。修改校对规则时，请同步检查网页版、Chrome 插件、Illustrator 扩展和 Figma 插件，避免三端行为不一致。更多说明见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ## 贡献者
 
@@ -219,7 +218,7 @@ GapGap 的校对逻辑在本地运行。网页版使用浏览器本地能力处�
 
 ## 参考规范
 
-本工具遵循 [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines) 规范。
+本工具的执行规则在 [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines) 上稍有调整。
 
 ## License
 
