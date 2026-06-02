@@ -8,7 +8,7 @@ GapGap 是开源项目，代码以 MIT License 发布。你可以自由使用、
 
 - 网页版：[https://acesiare.com/GapGap/](https://acesiare.com/GapGap/)
 - Chrome 插件：[Chrome Web Store](https://chromewebstore.google.com/detail/gapgap/afjdbcnppfkdmclagohgifckkbelgepl?authuser=0&hl=zh-CN)
-- Figma 插件：待补充
+- Figma 插件：[https://www.figma.com/community/plugin/1643282507721267466/gapgap](https://www.figma.com/community/plugin/1643282507721267466/gapgap)
 
 ## 功能特性
 
