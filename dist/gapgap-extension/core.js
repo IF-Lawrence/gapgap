@@ -70,14 +70,6 @@
     const addSpace = `$1${SPACE}$2`;
     const normalizeSpace = "$1 $2";
     const protectedMarker = "\uE100[\uE200-\uE2ff]\uE101";
-    const plusLeftOperand = `[${cjk}0-9]|[${latin}0-9][${latin}0-9._\\-/²³]*`;
-    const plusRightOperand = `[${cjk}${latin}0-9]`;
-    text = text.replace(new RegExp(`(${plusLeftOperand})([ \\t]*)\\+([ \\t]*)(${plusRightOperand})`, "g"), (match, left, leftSpace, rightSpace, right) => {
-      if (/^[A-Za-z]$/.test(left) && new RegExp(`[${cjk}]`).test(right)) return match;
-      const beforePlus = leftSpace ? " " : SPACE;
-      const afterPlus = rightSpace ? " " : SPACE;
-      return `${left}${beforePlus}+${afterPlus}${right}`;
-    });
     text = text.replace(new RegExp(`([${cjk}])[ \\t]+([${latin}0-9])`, "g"), normalizeSpace);
     text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
     text = text.replace(new RegExp(`([${latin}0-9+#])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
