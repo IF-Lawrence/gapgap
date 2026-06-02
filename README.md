@@ -9,6 +9,7 @@ GapGap 是开源项目，代码以 MIT License 发布。你可以自由使用、
 - 网页版：[https://acesiare.com/GapGap/](https://acesiare.com/GapGap/)
 - Chrome 插件：[Chrome Web Store](https://chromewebstore.google.com/detail/gapgap/afjdbcnppfkdmclagohgifckkbelgepl?authuser=0&hl=zh-CN)
 - Figma 插件：[https://www.figma.com/community/plugin/1643282507721267466/gapgap](https://www.figma.com/community/plugin/1643282507721267466/gapgap)
+- Illustrator 2020 兼容插件：见 `illustrator-cep-plugin/`
 
 ## 功能特性
 
@@ -18,7 +19,6 @@ GapGap 是开源项目，代码以 MIT License 发布。你可以自由使用、
 - **中文与数字之间自动添加空格** - 如 `花了5000元` → `花了 5000 元`
 - **数字与单位之间不添加空格** - 如 `10Gbps`、`10TB` 保持原样
 - **百分号/度数后跟中文添加空格** - 如 `15%的` → `15% 的`
-- **加号作为连接符/运算符时两侧添加空格** - 如 `USB+Fast` → `USB + Fast`
 - **全角标点与其他字符之间不加空格**
 
 ### 标点符号修正
@@ -66,6 +66,14 @@ Figma 插件适合在设计文件中校对文本图层。它会读取当前选�
 发布地址：待补充
 
 插件源码位于 `figma-plugin/`，复用了 GapGap 的中英文混排校对规则，并改为使用 Figma Plugin API。
+
+### Illustrator 2020 兼容插件
+
+Illustrator 兼容插件适合在旧版 Illustrator 中校对单个文本对象。它使用 CEP 面板和 ExtendScript，目标兼容 Illustrator 2020 及更新版本。
+
+插件源码位于 `illustrator-cep-plugin/`。选择一个 Illustrator 文本对象后，可以在 GapGap 面板中读取、校对、复制或写回文本。
+
+本地安装和调试说明见 `illustrator-cep-plugin/README.md`。
 
 ## 构建与打包
 
@@ -128,6 +136,22 @@ figma-plugin/ui.bundle.html
 2. 进入 `Plugins` → `Development` → `Import plugin from manifest...`
 3. 选择 `figma-plugin/manifest.json`
 
+### Illustrator 2020 插件本地加载
+
+Illustrator CEP 插件可以直接加载未签名扩展进行本地测试：
+
+```bash
+mkdir -p "$HOME/Library/Application Support/Adobe/CEP/extensions"
+ln -s "$(pwd)/illustrator-cep-plugin" "$HOME/Library/Application Support/Adobe/CEP/extensions/com.gapgap.illustrator.cep"
+for version in 9 10 11 12 13; do defaults write "com.adobe.CSXS.$version" PlayerDebugMode 1; done
+```
+
+然后重启 Illustrator，在 `Window` -> `Extensions` -> `GapGap` 打开面板。
+
+也可以把 `illustrator-cep-plugin/` 压缩发给 macOS 用户，对方解压后双击 `install-macos.command` 即可安装。
+
+正式分发时建议打包并签名为 ZXP。
+
 ### 规则一致性检查
 
 三端共用同一套校对规则。修改规则后运行：
@@ -136,7 +160,7 @@ figma-plugin/ui.bundle.html
 node scripts/verify-format-consistency.js
 ```
 
-该脚本会比对网页版、Chrome 插件和 Figma 插件的格式化输出是否一致。
+该脚本会比对网页版、Chrome 插件、Figma 插件和 Illustrator 插件的格式化输出是否一致。
 
 ## 发布检查清单
 
@@ -163,6 +187,7 @@ node scripts/verify-format-consistency.js
 ├── favicon.png                # 网页版图标
 ├── chrome-extension/          # Chrome 插件源码
 ├── figma-plugin/              # Figma 插件源码
+├── illustrator-cep-plugin/    # Illustrator 2020 CEP 插件源码
 ├── dist/gapgap-extension/     # Chrome 插件发布目录
 ├── dist/gapgap-extension.zip  # Chrome Web Store 上传包
 ├── scripts/                   # 检查脚本

@@ -28,6 +28,15 @@ function loadChromeFormatter() {
   return (value) => sandbox.window.GapGapCore.formatAndHighlight(value).text;
 }
 
+function loadIllustratorFormatter() {
+  const code = fs.readFileSync("illustrator-cep-plugin/core.js", "utf8");
+  const sandbox = {
+    window: {}
+  };
+  vm.runInNewContext(code, sandbox);
+  return (value) => sandbox.window.GapGapCore.formatAndHighlight(value).text;
+}
+
 function loadFigmaFormatter() {
   const code = fs.readFileSync("figma-plugin/code.js", "utf8")
     .split("\nasync function getData()")[0] + "\nthis.formatText = formatText;";
@@ -63,7 +72,7 @@ const cases = [
   "访问 https://example.com/a-b?x=1 或发到 hi@example.com",
   "版本v1.2.3发布了",
   "中文   “A”   中文",
-  "USB   +   Fast 和 A+中文",
+  "USB+Fast模式 和 A+中文，1   +   1=2",
   "缩进    保留",
   "全角１２３数字"
 ];
@@ -71,6 +80,7 @@ const cases = [
 const formatters = {
   web: loadWebFormatter(),
   chrome: loadChromeFormatter(),
+  illustrator: loadIllustratorFormatter(),
   figma: loadFigmaFormatter()
 };
 
@@ -79,7 +89,7 @@ cases.forEach((input) => {
   const outputs = Object.fromEntries(
     Object.entries(formatters).map(([name, format]) => [name, format(input)])
   );
-  if (outputs.web !== outputs.chrome || outputs.chrome !== outputs.figma) {
+  if (Object.values(outputs).some((output) => output !== outputs.web)) {
     failures += 1;
     console.error(`Mismatch for ${JSON.stringify(input)}`);
     console.error(outputs);

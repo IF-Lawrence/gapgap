@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="11.0" ExtensionBundleId="com.gapgap.illustrator.cep" ExtensionBundleVersion="0.1.1" ExtensionBundleName="GapGap">
+  <ExtensionList>
+    <Extension Id="com.gapgap.illustrator.cep.panel" Version="0.1.1" />
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="ILST" Version="[24.0,99.9]" />
+    </HostList>
+    <LocaleList>
+      <Locale Code="All" />
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="9.0" />
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.gapgap.illustrator.cep.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./index.html</MainPath>
+          <ScriptPath>./jsx/host.jsx</ScriptPath>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>GapGap</Menu>
+          <Geometry>
+            <Size>
+              <Height>640</Height>
+              <Width>420</Width>
+            </Size>
+            <MinSize>
+              <Height>480</Height>
+              <Width>360</Width>
+            </MinSize>
+            <MaxSize>
+              <Height>960</Height>
+              <Width>960</Width>
+            </MaxSize>
+          </Geometry>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>

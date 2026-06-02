@@ -1,0 +1,125 @@
+(function () {
+  function escapeHTML(value) {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function countWords(value) {
+    const matches = value.match(/[a-zA-Z0-9]+|[\u4e00-\u9fa5]/g);
+    return matches ? matches.length : 0;
+  }
+
+  function formatAndHighlight(value) {
+    const SPACE = "\uE000";
+    const WARN_START = "\uE001";
+    const WARN_END = "\uE002";
+    const cjk = "\\u3400-\\u9fff";
+    const latin = "A-Za-z";
+    const latinTokenTail = `${latin}0-9+#._\\-/²³`;
+    const protectedTokens = [];
+
+    const protect = (text, pattern) => text.replace(pattern, (match) => {
+      const marker = `\uE100${String.fromCharCode(0xE200 + protectedTokens.length)}\uE101`;
+      protectedTokens.push(match);
+      return marker;
+    });
+
+    let text = value || "";
+    [
+      /\[[^\]\n]+\]\([^)]+\)/g,
+      /`[^`\n]+`/g,
+      /https?:\/\/[^\s\u3400-\u9fff，。！？；：、（）《》“”‘’]+/gi,
+      /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+      /\bv\d+(?:\.\d+)+(?:[-+][A-Z0-9.-]+)?\b/gi
+    ].forEach((pattern) => {
+      text = protect(text, pattern);
+    });
+
+    text = text.replace(/[\uff10-\uff19]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0));
+    text = text.replace(/([！？!?]{2,}|[。，；：、]{2,})/g, (match) => {
+      const normalized = match.replace(/!/g, "\uff01").replace(/\?/g, "\uff1f");
+      return `${WARN_START}${normalized}${WARN_END}`;
+    });
+
+    const punctMap = {
+      ",": "\uff0c",
+      "!": "\uff01",
+      "?": "\uff1f",
+      ";": "\uff1b",
+      ":": "\uff1a",
+      "(": "\uff08",
+      ")": "\uff09"
+    };
+
+    Object.entries(punctMap).forEach(([half, full]) => {
+      const escaped = half.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      text = text.replace(new RegExp(`([${cjk}])(${escaped})`, "g"), `$1${full}`);
+      text = text.replace(new RegExp(`(${escaped})([${cjk}])`, "g"), `${full}$2`);
+    });
+
+    text = text.replace(new RegExp(`([${cjk}])\\.`, "g"), "$1\u3002");
+    text = text.replace(new RegExp(`(^|[^${latin}0-9])\\.([${cjk}])`, "g"), "$1\u3002$2");
+
+    const addSpace = `$1${SPACE}$2`;
+    const normalizeSpace = "$1 $2";
+    const protectedMarker = "\uE100[\uE200-\uE2ff]\uE101";
+    text = text.replace(new RegExp(`([${cjk}])[ \\t]+([${latin}0-9])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${latin}0-9+#])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${cjk}])[ \\t]+([.][${latin}])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*\\.)[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${cjk}])[ \\t]+([“‘「『])([${latin}0-9])`, "g"), `$1 $2$3`);
+    text = text.replace(new RegExp(`([${latin}0-9])([”’」』])[ \\t]+([${cjk}])`, "g"), `$1$2 $3`);
+    text = text.replace(new RegExp(`([${cjk}])[ \\t]+([—-])([${latin}0-9])`, "g"), `$1 $2$3`);
+    text = text.replace(new RegExp(`([${latin}0-9])([—-])[ \\t]+([${cjk}])`, "g"), `$1$2 $3`);
+    text = text.replace(new RegExp(`([%‰℃℉°])[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${cjk}])[ \\t]+(${protectedMarker})`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`(${protectedMarker})[ \\t]+([${cjk}])`, "g"), normalizeSpace);
+    text = text.replace(new RegExp(`([${cjk}])([${latin}0-9])`, "g"), addSpace);
+    text = text.replace(new RegExp(`([${latin}0-9+#])([${cjk}])`, "g"), addSpace);
+    text = text.replace(new RegExp(`([${cjk}])([.][${latin}])`, "g"), addSpace);
+    text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*)([${cjk}])`, "g"), addSpace);
+    text = text.replace(new RegExp(`([${latin}0-9][${latinTokenTail}]*\\.)([${cjk}])`, "g"), addSpace);
+    text = text.replace(new RegExp(`([${cjk}])([“‘「『])([${latin}0-9])`, "g"), `$1${SPACE}$2$3`);
+    text = text.replace(new RegExp(`([${latin}0-9])([”’」』])([${cjk}])`, "g"), `$1$2${SPACE}$3`);
+    text = text.replace(new RegExp(`([${cjk}])([—-])([${latin}0-9])`, "g"), `$1${SPACE}$2$3`);
+    text = text.replace(new RegExp(`([${latin}0-9])([—-])([${cjk}])`, "g"), `$1$2${SPACE}$3`);
+    text = text.replace(new RegExp(`([%‰℃℉°])([${cjk}])`, "g"), addSpace);
+    text = text.replace(new RegExp(`([${cjk}])(\uE100[\uE200-\uE2ff]\uE101)`, "g"), `$1${SPACE}$2`);
+    text = text.replace(new RegExp(`(\uE100[\uE200-\uE2ff]\uE101)([${cjk}])`, "g"), `$1${SPACE}$2`);
+    text = text.replace(/\uE100([\uE200-\uE2ff])\uE101/g, (_, code) => protectedTokens[code.charCodeAt(0) - 0xE200]);
+
+    let html = "";
+    let plain = "";
+    const stack = [];
+    for (const char of text) {
+      if (char === SPACE) {
+        html += '<span class="gapgap-added-space">&nbsp;</span>';
+        plain += " ";
+      } else if (char === WARN_START) {
+        stack.push("warning");
+        html += '<span class="gapgap-warning">';
+      } else if (char === WARN_END) {
+        if (stack.pop() === "warning") html += "</span>";
+      } else {
+        html += escapeHTML(char);
+        plain += char;
+      }
+    }
+
+    return {
+      html: html.replace(/\n/g, "<br>"),
+      text: plain,
+      inputLength: value.length,
+      outputLength: plain.length,
+      inputWords: countWords(value),
+      outputWords: countWords(plain)
+    };
+  }
+
+  window.GapGapCore = {
+    formatAndHighlight
+  };
+})();

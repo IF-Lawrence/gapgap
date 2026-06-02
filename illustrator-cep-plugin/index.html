@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>GapGap Illustrator</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <main class="panel-shell">
+    <section class="workspace" aria-label="校对工作台">
+      <section class="pane" aria-label="校对输入">
+        <div class="pane-bar">
+          <span class="pill">原文</span>
+          <span id="inputCount">0 字符 / 0 字</span>
+        </div>
+        <textarea id="inputText" spellcheck="false" placeholder="读取或输入文本"></textarea>
+      </section>
+
+      <section class="pane result-pane" aria-label="校对结果">
+        <div class="pane-bar">
+          <span id="resultStatus">请选择一个文本对象</span>
+          <span id="resultCount">0 字符 / 0 字</span>
+        </div>
+        <div id="result" class="result" contenteditable="true" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <footer class="command-bar">
+      <button id="readButton" class="tool-button" type="button" title="读取 Illustrator 当前所选文本" aria-label="读取所选文本">
+        <span>读取</span>
+      </button>
+      <button id="historyButton" class="tool-button" type="button" title="历史记录" aria-label="历史记录">
+        <span>历史</span>
+      </button>
+      <button id="copyButton" class="tool-button" type="button" title="复制校对结果" aria-label="复制校对结果">
+        <span>复制</span>
+      </button>
+      <button id="writeButton" class="tool-button primary-tool-button" type="button" title="写回 Illustrator 所选文本" aria-label="写回所选文本">
+        <span>写回</span>
+      </button>
+    </footer>
+
+    <section id="historyOverlay" class="history-overlay" aria-label="历史记录">
+      <div class="history-panel">
+        <div class="pane-bar">
+          <span class="pill">历史记录</span>
+          <span id="historyCount">0 条</span>
+        </div>
+        <div id="historyList" class="history-list"></div>
+        <footer class="history-actions">
+          <button id="clearHistory" class="text-button" type="button">清空</button>
+          <button id="closeHistoryButton" class="primary-button" type="button">关闭</button>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <script src="lib/CSInterface.js"></script>
+  <script src="core.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>
