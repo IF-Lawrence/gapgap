@@ -75,28 +75,79 @@
 
         .app-title {
             display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 16px;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 14px;
             padding: 0 4px;
         }
 
-        .app-title h1,
-        .app-title p {
+        .app-brand {
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: flex-end;
+            gap: 6px;
             margin: 0;
-        }
-
-        .app-title h1 {
-            font-size: 24px;
-            line-height: 32px;
             color: var(--md-sys-color-on-background);
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 22px;
+            text-align: right;
+            white-space: nowrap;
         }
 
-        .app-title p {
+        .app-brand strong {
+            font-size: 16px;
+            font-weight: 750;
+        }
+
+        .app-brand span {
             color: var(--md-sys-color-on-surface-variant);
-            font-size: var(--md-sys-typescale-body-medium-font-size);
-            line-height: var(--md-sys-typescale-body-medium-line-height);
-            font-weight: 500;
+        }
+
+        .platform-links {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .platform-link {
+            display: inline-flex;
+            width: 30px;
+            height: 30px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--md-sys-color-surface-variant);
+            border-radius: var(--md-sys-shape-corner-full);
+            background: var(--md-sys-color-surface-container-low);
+            color: var(--md-sys-color-on-surface);
+            text-decoration: none;
+            transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+        }
+
+        .platform-link:hover {
+            border-color: var(--md-sys-color-primary);
+            background: var(--md-sys-color-secondary-container);
+            transform: translateY(-1px);
+        }
+
+        .platform-link svg {
+            display: block;
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+        }
+
+        .platform-link.chrome svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+        }
+
+        .platform-link.illustrator {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
         }
 
         .workbench {
@@ -453,8 +504,19 @@
 
     <main class="app-shell">
         <header class="app-title">
-            <h1>GapGap</h1>
-            <p>No more ghost gaps</p>
+            <p class="app-brand"><strong>GapGap</strong><span>- No more ghost gaps</span></p>
+            <nav class="platform-links" aria-label="GapGap 平台链接">
+                <a class="platform-link github" href="https://github.com/IF-Lawrence/gapgap" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.95.58.1.79-.25.79-.56v-2.14c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18A11.1 11.1 0 0 1 12 6.04c.98 0 1.96.13 2.88.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"></path></svg>
+                </a>
+                <a class="platform-link figma" href="https://www.figma.com/community/plugin/1643282507721267466/gapgap" target="_blank" rel="noopener noreferrer" aria-label="Figma 插件" title="Figma 插件">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 24a4 4 0 0 0 4-4v-4H8a4 4 0 0 0 0 8Zm0-10h4V6H8a4 4 0 0 0 0 8Zm0-10h4V0H8a4 4 0 0 0 0 4Zm6 10a4 4 0 1 0 0-8h-2v8h2Zm0-10h-2V0h2a4 4 0 0 1 0 4Z"></path></svg>
+                </a>
+                <a class="platform-link chrome" href="https://chromewebstore.google.com/detail/gapgap/afjdbcnppfkdmclagohgifckkbelgepl?authuser=0&hl=zh-CN" target="_blank" rel="noopener noreferrer" aria-label="Chrome 插件" title="Chrome 插件">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3.4"></circle><path d="M12 3h7.8M4.2 8.4l4 6.9M19.8 8.4l-4 6.9"></path></svg>
+                </a>
+                <a class="platform-link illustrator" href="https://github.com/IF-Lawrence/gapgap/releases/download/illustrator-cep-v0.1.0/gapgap-illustrator-cep-macos.zip" target="_blank" rel="noopener noreferrer" aria-label="Illustrator 插件" title="Illustrator 插件">Ai</a>
+            </nav>
         </header>
 
         <div class="workbench">
@@ -687,24 +749,27 @@
 4. 百分号/度数后跟中文需要空格
    示例：新MacBook Pro有15%的CPU性能提升。
 
-5. 全角标点与其他字符之间不加空格
+5. 加号作为连接符/运算符时两侧需要空格
+   示例：USB+Fast模式，1+1=2。
+
+6. 全角标点与其他字符之间不加空格
    示例：刚刚买了一部iPhone，好开心！
 
 二、标点符号规则：
 
-7. 中文语境使用全角标点（自动修正）
+1. 中文语境使用全角标点（自动修正）
    错误示例：你好,世界!
    正确示例：你好，世界！
 
-7. 英文整句内保留半角标点（不会误转换）
+2. 英文整句内保留半角标点（不会误转换）
    正确示例：乔布斯说：「Stay hungry, stay foolish.」
    说明：引号内的英文逗号和句号保持半角
 
-8. 数字使用半角字符（自动修正）
+3. 数字使用半角字符（自动修正）
    错误示例：价格是１２３元
    正确示例：价格是123元
 
-9. 不重复使用标点符号（警告提示）
+4. 不重复使用标点符号（警告提示）
    错误示例：太棒了！！！
    正确示例：太棒了！
 
