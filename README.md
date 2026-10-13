@@ -223,3 +223,13 @@ GapGap 的校对逻辑在本地运行。网页版使用浏览器本地能力处�
 ## License
 
 [MIT](./LICENSE)
+
+## 官网部署
+
+官网 `https://acesiare.com/GapGap/` 是仓库根目录的 `index.html` + `favicon.png`：
+
+```bash
+./scripts/deploy.sh
+```
+
+有未提交或未推送的改动会拒绝部署；部署前自动备份线上目录到服务器 `/root/backups/GapGap/`。
